@@ -9,7 +9,7 @@ import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
-import ProjectManagement from "./pages/configuration_management/ProjectManagement";
+import ProjectManagement from "./pages/configuration/ProjectManagement";
 
 const App = () => {
   const { user } = useAuth();
