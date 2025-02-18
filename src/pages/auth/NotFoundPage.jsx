@@ -9,7 +9,9 @@ export default function NotFoundPage() {
         <p style={{ fontSize: "48px", color: "red" }}>Oops! 404 Not Found</p>
       }
       subTitle={
-        <p style={{ fontSize: "20px" }}>Trang bạn tìm không tồn tại!</p>
+        <p style={{ fontSize: "20px" }}>
+          The page you are looking for does not exist!
+        </p>
       }
       extra={
         <Button
@@ -24,7 +26,7 @@ export default function NotFoundPage() {
                 padding: "5 12px",
               }}
             >
-              Quay về trang chủ
+              Back to Sign In
             </span>
           </Link>
         </Button>
