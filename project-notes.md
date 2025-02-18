@@ -1,5 +1,8 @@
 ## QUY TẮT KHI CODE TRONG DỰ ÁN!
 
+- Tạo nhánh mới từ nhánh develop -> Tên feature/(tên chức năng muốn làm).
+- Đẩy code lên tạo PR vô nhánh develop!
+
 ### 1. Tuân theo Module-based Structure
 
 ```
