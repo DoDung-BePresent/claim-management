@@ -1,24 +1,10 @@
 import React from "react";
-import { useAuth } from "../../contexts/AuthProvider";
-import { Button } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const Home = () => {
-  const { user, setUser } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    setUser(null);
-    navigate("/sign-in");
-  };
-  return (
-    <div>
-      {user.email}
-      <Button onClick={handleLogout} danger>
-        Logout
-      </Button>
-    </div>
-  );
+  return <div className="">{user.email}</div>;
 };
 
 export default Home;

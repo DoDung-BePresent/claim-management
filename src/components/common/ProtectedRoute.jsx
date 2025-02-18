@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import LoadingScreen from "../layout/LoadingScreen";
+import { LoadingScreen } from "@/components/layout/LoadingScreen";
 
 export const ProtectedRoute = ({
   isAuthenticated,
