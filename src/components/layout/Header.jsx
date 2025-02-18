@@ -32,8 +32,13 @@ export const Header = ({ className }) => {
     setIsModalVisible(true);
   };
 
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
   const handleCreateClaim = () => {
     form.validateFields().then(values => {
+      console.log('Form values:', values);
       setIsModalVisible(false);
       Swal.fire({
         toast: true,
@@ -159,15 +164,18 @@ export const Header = ({ className }) => {
           title={HEADER_TEXTS.createClaimTitle}
           open={isModalVisible}
           onOk={handleCreateClaim}
-          onCancel={handleSaveDraft}
+          onCancel={closeModal}
           okText={HEADER_TEXTS.createClaimButton}
           cancelText={HEADER_TEXTS.saveDraftButton}
+          cancelButtonProps={{
+            onClick: handleSaveDraft,
+          }}
         >
           <p className="text-gray-500 mb-4">{HEADER_TEXTS.createClaimDescription}</p>
           <Form form={form} layout="vertical">
-            <div className=" flex-wrap gap-4">
+          <div className=" flex-wrap gap-4">
               <Form.Item label="Staff Name" name="staffName" rules={[{ required: true, message: 'Please input the staff name!' }]}>
-                <Input placeholder="Enter staff name" className="w-full md:w-1/2" />
+                <Input placeholder="Enter staff name" className="w-50 md:w-1/2" />
               </Form.Item>
               <Form.Item label="Staff ID" name="staffId" rules={[{ required: true, message: 'Please input the staff ID!' }]}>
                 <Input placeholder="Enter staff ID" className="w-full md:w-1/2" />
