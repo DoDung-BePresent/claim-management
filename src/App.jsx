@@ -7,6 +7,7 @@ import AuthLayout from "./layouts/AuthLayout";
 import Home from "./pages/common/Home";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
+import FinancePage from "./pages/FinancePage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
 
@@ -23,6 +24,7 @@ const App = () => {
           }
         >
           <Route index element={<Home />} />
+          <Route path="finance" element={<FinancePage />} />
         </Route>
         <Route
           element={
