@@ -44,7 +44,7 @@ export const Header = ({ className }) => {
         toast: true,
         position: 'bottom-end',
         icon: 'success',
-        title: 'Create new claim successfully!',
+        title: 'Create claim successfully!',
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
