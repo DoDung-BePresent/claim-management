@@ -13,6 +13,7 @@ createRoot(document.getElementById("root")).render(
         token: {
           borderRadius: 5,
           colorPrimary: "hsl(240 5.9% 10%)",
+          fontFamily: "Inter",
         },
         components: {
           Button: {
