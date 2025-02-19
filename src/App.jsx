@@ -11,6 +11,8 @@ import FinancePage from "./pages/FinancePage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
 import ProjectManagement from "./pages/configuration/ProjectManagement";
+import ClaimsPage from "./pages/common/ClaimApprovalPage";
+
 
 const App = () => {
   const { user } = useAuth();
@@ -26,6 +28,7 @@ const App = () => {
         >
           <Route index element={<Home />} />
           <Route path="finance" element={<FinancePage />} />
+
         </Route>
         <Route
           element={
@@ -36,9 +39,10 @@ const App = () => {
         >
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
-        
+
         </Route>
-        <Route path="management" element={<ProjectManagement/>}></Route>
+        <Route path="management" element={<ProjectManagement />}></Route>
+        <Route path="claim-approval" element={<ClaimsPage />}></Route>
       </Routes>
     </BrowserRouter>
   );
