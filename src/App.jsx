@@ -10,6 +10,7 @@ import SignUp from "./pages/auth/SignUp";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
 import ProjectManagement from "./pages/configuration/ProjectManagement";
+import StaffManagement from "./pages/configuration/StaffManagement";
 
 const App = () => {
   const { user } = useAuth();
@@ -36,7 +37,8 @@ const App = () => {
           <Route path="sign-up" element={<SignUp />} />
         
         </Route>
-        <Route path="management" element={<ProjectManagement/>}></Route>
+        <Route path="management-project" element={<ProjectManagement/>}></Route>
+          <Route path="management-staff" element={<StaffManagement/>}></Route>
       </Routes>
     </BrowserRouter>
   );

@@ -58,7 +58,7 @@ body {
     display: flex;
     justify-content: space-between;
   }
-
+  
   .ant-form-item-label > label {
     color: #A7B096; /* fresh sage */
   }
@@ -77,54 +77,54 @@ body {
   }
 
   .ant-btn-primary {
-    background-color: #B3986A; /* cinamon */
-    border-color: #B3986A; /* cinamon */
+    background-color: #B3986A !important; /* cinamon */
+    border-color: #B3986A !important; /* cinamon */
   }
 
   .ant-btn-primary:hover {
-    background-color: #A7B096; /* fresh sage */
-    border-color: #A7B096; /* fresh sage */
+    background-color: #A7B096 !important; /* fresh sage */
+    border-color: #A7B096 !important; /* fresh sage */
   }
 
   .ant-btn-default {
-    background-color: #A7B096; /* fresh sage */
-    border-color: #A7B096; /* fresh sage */
-    color: #FBFAEF; /* white linen */
+    background-color: #A7B096 !important; /* fresh sage */
+    border-color: #A7B096 !important; /* fresh sage */
+    color: #FBFAEF !important; /* white linen */
   }
 
   .ant-btn-default:hover {
-    background-color: #B3986A; /* cinamon */
-    border-color: #B3986A; /* cinamon */
-    color: #FBFAEF; /* white linen */
+    background-color: #B3986A !important; /* cinamon */
+    border-color: #B3986A !important; /* cinamon */
+    color: #FBFAEF !important; /* white linen */
   }
 
   .buttonEdit {
-    color: #A7B096; /* fresh sage */
+    color: #A7B096 !important; /* fresh sage */
   }
 
   .buttonEdit:hover {
-    color: #B3986A; /* cinamon */
+    color: #B3986A !important; /* cinamon */
   }
 
   .buttonDelete {
-    color: #D79E91; /* pampas */
+    color: #D79E91 !important; /* pampas */
   }
 
   .buttonDelete:hover {
-    color: #B3986A; /* cinamon */
+    color: #B3986A !important;  /* cinamon */
   }
 
   .project-management-table .ant-table-thead > tr > th {
-    background-color: #A7B096; /* fresh sage */
+    background-color: #A7B096 !important; /* fresh sage */
     color: #FBFAEF; /* white linen */
   }
 
   .project-management-table .ant-table-tbody > tr > td {
-    background-color: #F7DED6; /* sweet macadamia */
+    background-color: #a7b09667 ; /* sweet macadamia */
     color: #333; /* dark text color for contrast */
   }
 
   .project-management-table .ant-table-tbody > tr:hover > td {
-    background-color: #DBDCCD; /* light grey */
+    background-color: #DBDCCD !important ; /* light grey */
   }
 }
