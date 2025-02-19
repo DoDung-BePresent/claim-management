@@ -10,7 +10,6 @@ import SignUp from "./pages/auth/SignUp";
 import FinancePage from "./pages/FinancePage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
-import ProjectManagement from "./pages/configuration/ProjectManagement";
 
 const App = () => {
   const { user } = useAuth();
@@ -36,9 +35,7 @@ const App = () => {
         >
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
-        
         </Route>
-        <Route path="management" element={<ProjectManagement/>}></Route>
       </Routes>
     </BrowserRouter>
   );
