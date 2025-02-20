@@ -55,17 +55,23 @@ export const HEADER_LINKS = [
       },
     ],
     dropdown: {
+      to: "approver/view-claim",
       label: "Claim for approval",
       menu: [
         {
           key: "1",
           label: "For My Vetting",
-          to: "#",
+          to: "approver/view-claim?status=pending",
         },
         {
           key: "2",
-          label: "Approved or Paid",
-          to: "#",
+          label: "Approved",
+          to: "approver/view-claim?status=approved",
+        },
+        {
+          key: "3",
+          label: "Paid",
+          to: "approver/view-claim?status=paid",
         },
       ],
     },
