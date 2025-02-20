@@ -11,6 +11,7 @@ import FinancePage from "./pages/FinancePage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
 import ProjectManagement from "./pages/configuration/ProjectManagement";
+import ViewClaim from "./pages/viewpage/viewClaim";
 import ClaimsPage from "./pages/common/ClaimApprovalPage";
 import NotFoundPage from "./pages/auth/NotFoundPage";
 
@@ -28,7 +29,7 @@ const App = () => {
         >
           <Route index element={<Home />} />
           <Route path="finance" element={<FinancePage />} />
-
+          <Route path="view-claim" element={<ViewClaim />} />
         </Route>
         <Route
           element={
@@ -40,9 +41,9 @@ const App = () => {
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
         </Route>
-        <Route path="management" element={<ProjectManagement />}></Route>
-        <Route path="claim-approval" element={<ClaimsPage />}></Route>
-        <Route path="management" element={<ProjectManagement />}></Route>
+        <Route path="management" element={<ProjectManagement />} />
+        <Route path="claim-approval" element={<ClaimsPage />} />
+        <Route path="management" element={<ProjectManagement />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
