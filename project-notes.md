@@ -33,8 +33,6 @@
 	- Services: camelCase (authService.js) with suffix `Service`
 	- Providers/Contexts: PascalCase (AuthProvider.jsx) with suffix `Provider` or `Context`
     - Utils/Helpers: camelCase (formatDate.js)
-    - Constants: 
-        - SCREAMING_SNAKE_CASE for values.
-        - camelCase (apiConstants.js) with suffix `Constants`.
-    - Constants: PascalCase (MainLayout.jsx) with suffix `Layout`
+    - Constants: camelCase (apiConstants.js)
+    - Layouts: PascalCase (MainLayout.jsx) with suffix `Layout`
     - Pages/Views: PascalCase (HomePage.jsx)
