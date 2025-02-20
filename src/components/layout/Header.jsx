@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
 import { mainLayoutLinks } from "@/constants/navLinks";
-import { Avatar, Badge, Button, Dropdown, Modal, Input, Form, DatePicker, notification, App } from "antd";
+import { Avatar, Badge, Button, Dropdown, Modal, Input, Form, DatePicker, notification, App, Select } from "antd";
 import { HEADER_TEXTS } from "@/constants";
 import Swal from 'sweetalert2';
+import { projectNames } from "@/constants";
+import axios from "axios";
 
 const { RangePicker } = DatePicker;
+
+const { VITE_BASE_API_URL } = import.meta.env;
 
 export const Header = ({ className }) => {
   const navigate = useNavigate();
@@ -17,23 +21,42 @@ export const Header = ({ className }) => {
   const menuLinks = mainLayoutLinks.find((item) => item.role === user.role);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [staffInfo, setStaffInfo] = useState(null); // Trạng thái để lưu thông tin nhân viên
 
   const items = menuLinks.dropdown.menu.map((item) => ({
     key: item.key,
     label: <Link to={item.to}>{item.label}</Link>,
   }));
 
+  // Hàm để lấy thông tin nhân viên theo ID
+  const fetchUserById = async (id) => {
+    try {
+      const response = await axios.get(`${VITE_BASE_API_URL}/users/${id}`); // Gọi API để lấy thông tin nhân viên
+      setStaffInfo(response.data); // Lưu thông tin vào trạng thái
+    } catch (error) {
+      console.error("Error fetching staff info:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserById(user.id);
+    }
+  }, [user]);
+  useEffect(() => {
+    if (staffInfo) {
+      form.setFieldsValue({
+        staffName: staffInfo.name,
+        staffId: staffInfo.id,
+        staffDepartment: staffInfo.department,
+      });
+    }
+  }, [staffInfo, form]);
+
+
   const handleLogout = () => {
     setUser(null);
     navigate("/sign-in");
-  };
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setIsModalVisible(false);
   };
 
   const handleCreateClaim = () => {
@@ -101,7 +124,7 @@ export const Header = ({ className }) => {
                 type="primary"
                 size="large"
                 icon={<Plus className="-mb-1" />}
-                onClick={showModal}
+                onClick={() => setIsModalVisible(true)}
               />
             )}
             <Button
@@ -164,7 +187,7 @@ export const Header = ({ className }) => {
           title={HEADER_TEXTS.createClaimTitle}
           open={isModalVisible}
           onOk={handleCreateClaim}
-          onCancel={closeModal}
+          onCancel={() => setIsModalVisible(false)}
           okText={HEADER_TEXTS.createClaimButton}
           cancelText={HEADER_TEXTS.saveDraftButton}
           cancelButtonProps={{
@@ -173,18 +196,39 @@ export const Header = ({ className }) => {
         >
           <p className="text-gray-500 mb-4">{HEADER_TEXTS.createClaimDescription}</p>
           <Form form={form} layout="vertical">
-          <div className=" flex-wrap gap-4">
+            <div className="flex-wrap gap-4">
               <Form.Item label="Staff Name" name="staffName" rules={[{ required: true, message: 'Please input the staff name!' }]}>
-                <Input placeholder="Enter staff name" className="w-50 md:w-1/2" />
+                <Input
+                  value={staffInfo?.name || ''}
+                  disabled
+                  className="w-50 md:w-1/2"
+                  style={{ color: 'inherit' }}
+                />
               </Form.Item>
               <Form.Item label="Staff ID" name="staffId" rules={[{ required: true, message: 'Please input the staff ID!' }]}>
-                <Input placeholder="Enter staff ID" className="w-full md:w-1/2" />
+                <Input
+                  value={staffInfo?.id || ''}
+                  disabled
+                  className="w-full md:w-1/2"
+                  style={{ color: 'inherit' }}
+                />
               </Form.Item>
-              <Form.Item label="Staff Department" name="staffDepartment" rules={[{ required: true, message: 'Please input the staff department!' }]}>
-                <Input placeholder="Enter staff department" className="w-full md:w-1/2" />
+              <Form.Item label="Staff Department" name="staffDepartment" rules={[{ required: true, message: 'Please input the staff ID!' }]}>
+                <Input
+                  value={staffInfo?.department || ''}
+                  disabled
+                  className="w-full md:w-1/2"
+                  style={{ color: 'inherit' }}
+                />
               </Form.Item>
-              <Form.Item label="Project Name" name="projectName" rules={[{ required: true, message: 'Please input the project name!' }]}>
-                <Input placeholder="Enter project name" className="w-full md:w-1/2" />
+              <Form.Item label="Project Name" name="projectName" rules={[{ required: true, message: 'Please select the project name!' }]}>
+                <Select placeholder="Select a project" className="w-full md:w-1/2">
+                  {projectNames.map((project) => (
+                    <Select.Option key={project.key} value={project.label}>
+                      {project.label}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
               <Form.Item label="Role" name="role" rules={[{ required: true, message: 'Please input the role!' }]}>
                 <Input placeholder="Enter role" className="w-full md:w-1/2" />

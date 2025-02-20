@@ -8,3 +8,8 @@ export const HEADER_TEXTS = {
   settings: "Settings",
   logout: "Logout",
 };
+export const projectNames = [
+  { key: 'project1', label: 'Dự án 1' },
+  { key: 'project2', label: 'Dự án 2' },
+  { key: 'project3', label: 'Dự án 3' },
+];
