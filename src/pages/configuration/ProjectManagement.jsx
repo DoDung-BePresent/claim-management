@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Input, DatePicker, Select, Button, Table, Modal } from 'antd';
+import { Form, Input, DatePicker, Select, Button, Table, Modal, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../index.css';
+import Header from '../../components/layout/Header';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -19,6 +20,30 @@ const ProjectManagement = () => {
 
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
+  };
+
+  const handleDelete = (id) => {
+    // confirm({
+    //   title: 'Are you sure you want to delete this user?',
+    //   onOk() {
+    //     console.log('OK');
+    //   },
+    // });
+    console.log('Deleted project with key:', key);
+  };
+
+  const showSaveConfirm = () => {
+    confirm({
+      title: 'Are you sure you want to save the changes?',
+      onOk() {
+        form.submit();
+      },
+      onCancel() {
+        console.log('Save cancelled');
+      },
+      okText: 'Yes',
+      cancelText: 'No',
+    })
   };
 
   const showModal = (title) => {
@@ -44,7 +69,14 @@ const ProjectManagement = () => {
     { title: 'Actions', key: 'actions', render: (text, record) => (
       <span>
         <Button className='buttonEdit' type="link" onClick={() => showModal('Edit Project')}>Edit</Button>
-        <Button className='buttonDelete' type="link">Delete</Button>
+        <Popconfirm
+          title="Are you sure you want to delete this project?"
+          onConfirm={() => handleDelete(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button className='buttonDelete' type="link">Delete</Button>
+        </Popconfirm>
       </span>
     ) },
   ];
@@ -189,7 +221,7 @@ const ProjectManagement = () => {
           </Form.Item>
 
           <div className="project-management-buttons">
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" onClick={showSaveConfirm}>
               Save
             </Button>
             <Button type="default" onClick={closeModal}>
