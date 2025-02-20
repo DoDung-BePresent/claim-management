@@ -11,6 +11,10 @@ import FinancePage from "./pages/FinancePage";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { useAuth } from "./contexts/AuthProvider";
 import ProjectManagement from "./pages/configuration/ProjectManagement";
+import StaffManagement from "./pages/configuration/StaffManagement";
+import ViewClaim from "./pages/viewpage/viewClaim";
+import ClaimsPage from "./pages/common/ClaimApprovalPage";
+import NotFoundPage from "./pages/auth/NotFoundPage";
 
 const App = () => {
   const { user } = useAuth();
@@ -31,6 +35,7 @@ const App = () => {
           {user?.role === "administrator" && (
             <Route path="manage/project" element={<ProjectManagement />} />
           )}
+          <Route path="view-claim" element={<ViewClaim />} />
         </Route>
         <Route
           element={
@@ -42,7 +47,12 @@ const App = () => {
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="management-project" element={<ProjectManagement/>}></Route>
+        <Route path="management-staff" element={<StaffManagement/>}></Route>
+        <Route path="management" element={<ProjectManagement />} />
+        <Route path="claim-approval" element={<ClaimsPage />} />
+        <Route path="management" element={<ProjectManagement />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
