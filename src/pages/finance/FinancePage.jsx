@@ -1,15 +1,27 @@
-import React, { useState } from "react";
-import { Modal, Table } from "antd";
+import React, { useState, useEffect } from "react";
+import { Table, Tag, Button, Dropdown, Modal } from "antd";
+import { Eye, Printer, DollarSign, MoreHorizontal } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { DUMMY_CLAIMS, STATUS_COLORS } from "@/constants/finance";
 
 const FinancePage = () => {
-  const [claims, setClaims] = useState([
-    { id: 1, claimName: "Partime", staffName: "Hung Dung", status: "Approved" },
-    { id: 2, claimName: "Partime", staffName: "Hung Dung", status: "Approved" },
-    { id: 3, claimName: "Partime", staffName: "Hung Dung", status: "Approved" },
-  ]);
-
+  const [searchParams] = useSearchParams();
+  const statusParam = searchParams.get("status");
+  const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (statusParam) {
+      setDataSource(
+        DUMMY_CLAIMS.filter(
+          (item) => item.status.toLowerCase() === statusParam.toLowerCase(),
+        ),
+      );
+    } else {
+      setDataSource(DUMMY_CLAIMS);
+    }
+  }, [statusParam]);
 
   const handlePaid = (record) => {
     setSelectedClaim(record);
@@ -18,92 +30,130 @@ const FinancePage = () => {
 
   const handleOk = () => {
     if (selectedClaim) {
-      setClaims((prevClaims) => prevClaims.filter(c => c.id !== selectedClaim.id));
+      setDataSource((prev) =>
+        prev.filter((item) => item.id !== selectedClaim.id),
+      );
     }
     setIsModalOpen(false);
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  const getActionItems = (record) => [
+    {
+      key: "view",
+      label: "View",
+      icon: <Eye className="h-4 w-4" />,
+      onClick: () => console.log("View", record),
+    },
+    {
+      key: "print",
+      label: "Print",
+      icon: <Printer className="h-4 w-4" />,
+      onClick: () => console.log("Print", record),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "paid",
+      label: "Paid",
+      icon: <DollarSign className="h-4 w-4" />,
+      onClick: () => handlePaid(record),
+    },
+  ];
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "Id",
+      dataIndex: "id",
+      sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'Claim Name',
-      dataIndex: 'claimName',
-      key: 'claimName',
-    },
-    {
-      title: 'Staff Name',
-      dataIndex: 'staffName',
-      key: 'staffName',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      ...(!statusParam && {
+        filters: [
+          { text: "Approved", value: "Approved" },
+          { text: "Paid", value: "Paid" },
+        ],
+        onFilter: (value, record) => record.status === value,
+      }),
       render: (status) => (
-        <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-sm">
+        <Tag color={STATUS_COLORS[status] || STATUS_COLORS.default}>
           {status}
-        </span>
+        </Tag>
       ),
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Staff Name",
+      dataIndex: "staffName",
+      sorter: (a, b) => a.staffName.localeCompare(b.staffName),
+    },
+    {
+      title: "Project Name",
+      dataIndex: "projectName",
+      sorter: (a, b) => a.projectName.localeCompare(b.projectName),
+    },
+    {
+      title: "Project Duration",
+      render: (_, record) => {
+        const startDate = new Date(record.startDate);
+        const endDate = new Date(record.endDate);
+        return `From ${startDate.toDateString()} to ${endDate.toDateString()}`;
+      },
+      sorter: (a, b) => new Date(a.startDate) - new Date(b.startDate),
+      width: 350,
+    },
+    {
+      title: "Total Working",
+      dataIndex: "totalWorking",
+      sorter: (a, b) => a.totalWorking - b.totalWorking,
+      render: (number) => `${number} hours`,
+      width: 150,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 100,
       render: (_, record) => (
-        <select
-          defaultValue=""
-          onChange={(e) => {
-            if (e.target.value === "paid") {
-              handlePaid(record);
-            }
-            e.target.value = "";
-          }}
-          className="border border-gray-300 p-1 rounded"
+        <Dropdown
+          menu={{ items: getActionItems(record), style: { width: "160px" } }}
+          trigger={["click"]}
+          placement="bottomRight"
         >
-          <option value="">Select Action</option>
-          <option value="view">View Claim</option>
-          <option value="print">Print Claim</option>
-          <option value="paid">Paid</option>
-        </select>
+          <Button
+            type="text"
+            icon={<MoreHorizontal className="h-4 w-4" />}
+            className="flex items-center justify-center"
+          />
+        </Dropdown>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Approved</h1>
-      </div>
-      
+    <div className="flex flex-col gap-4 p-6">
       <Table
+        size="small"
         columns={columns}
-        dataSource={claims}
-        rowKey="id"
-        pagination={false}
+        dataSource={dataSource}
+        pagination={{
+          size: "default",
+          pageSize: 10,
+        }}
       />
 
       <Modal
         title="Confirm Payment"
         open={isModalOpen}
         onOk={handleOk}
-        onCancel={handleCancel}
-        okText="OK"
-        okButtonProps={{
-          style: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' }
-        }}
+        onCancel={() => setIsModalOpen(false)}
+        okText="Confirm"
         cancelText="Cancel"
       >
-        <p>{selectedClaim ? `Are you sure you want to Paid ID ${selectedClaim.id} ?` : ''}</p>
+        <p>Are you sure you want to mark claim #{selectedClaim?.id} as paid?</p>
       </Modal>
     </div>
   );
 };
 
-export default FinancePage; 
+export default FinancePage;

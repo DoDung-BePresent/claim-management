@@ -51,7 +51,7 @@ export const HEADER_LINKS = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
@@ -76,22 +76,22 @@ export const HEADER_LINKS = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
-      to: "finance",
+      to: "finance/view-claim",
       label: "Claim for finance",
       menu: [
         {
           key: "1",
           label: "Approved",
-          to: "finance?status=approved",
+          to: "finance/view-claim?status=approved",
         },
         {
           key: "2",
           label: "Paid",
-          to: "finance?status=paid",
+          to: "finance/view-claim?status=paid",
         },
       ],
     },
@@ -102,7 +102,7 @@ export const HEADER_LINKS = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
