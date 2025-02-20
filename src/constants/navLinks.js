@@ -1,4 +1,3 @@
-
 export const mainLayoutLinks = [
   {
     role: "claimer",
@@ -75,17 +74,18 @@ export const mainLayoutLinks = [
       },
     ],
     dropdown: {
+      to: "finance",
       label: "Claim for finance",
       menu: [
         {
           key: "1",
           label: "Approved",
-          to: "#",
+          to: "finance?status=approved",
         },
         {
           key: "2",
           label: "Paid",
-          to: "#",
+          to: "finance?status=paid",
         },
       ],
     },
@@ -110,7 +110,7 @@ export const mainLayoutLinks = [
         {
           key: "2",
           label: "Project Information",
-          to: "#",
+          to: "manage/project",
         },
       ],
     },

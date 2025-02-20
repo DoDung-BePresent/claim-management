@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -25,7 +25,12 @@ const App = () => {
           }
         >
           <Route index element={<Home />} />
-          <Route path="finance" element={<FinancePage />} />
+          {user?.role === "finance" && (
+            <Route path="finance" element={<FinancePage />} />
+          )}
+          {user?.role === "administrator" && (
+            <Route path="manage/project" element={<ProjectManagement />} />
+          )}
         </Route>
         <Route
           element={
@@ -36,9 +41,8 @@ const App = () => {
         >
           <Route path="sign-in" element={<SignIn />} />
           <Route path="sign-up" element={<SignUp />} />
-        
         </Route>
-        <Route path="management" element={<ProjectManagement/>}></Route>
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
