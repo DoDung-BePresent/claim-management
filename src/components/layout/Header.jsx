@@ -5,6 +5,20 @@ import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
 import { mainLayoutLinks } from "@/constants/navLinks";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Dropdown,
+  Modal,
+  Input,
+  Form,
+  DatePicker,
+  notification,
+  App,
+} from "antd";
+import { HEADER_TEXTS } from "@/constants";
+import Swal from "sweetalert2";
 import { Avatar, Badge, Button, Dropdown, Modal, Input, Form, DatePicker, notification, App, Select } from "antd";
 import { HEADER_TEXTS } from "@/constants";
 import Swal from 'sweetalert2';
@@ -60,20 +74,20 @@ export const Header = ({ className }) => {
   };
 
   const handleCreateClaim = () => {
-    form.validateFields().then(values => {
-      console.log('Form values:', values);
+    form.validateFields().then((values) => {
+      console.log("Form values:", values);
       setIsModalVisible(false);
       Swal.fire({
         toast: true,
-        position: 'bottom-end',
-        icon: 'success',
-        title: 'Create claim successfully!',
+        position: "bottom-end",
+        icon: "success",
+        title: "Create claim successfully!",
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
         customClass: {
-          container: 'mb-5 mr-3'
-        }
+          container: "mb-5 mr-3",
+        },
       });
     });
   };
@@ -82,15 +96,15 @@ export const Header = ({ className }) => {
     setIsModalVisible(false);
     Swal.fire({
       toast: true,
-      position: 'bottom-end',
-      icon: 'info',
-      title: 'Draft saved successfully!',
+      position: "bottom-end",
+      icon: "info",
+      title: "Draft saved successfully!",
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
       customClass: {
-        container: 'mb-5 mr-3'
-      }
+        container: "mb-5 mr-3",
+      },
     });
   };
 
@@ -103,7 +117,7 @@ export const Header = ({ className }) => {
             <div className="flex items-center gap-4">
               <Link
                 to={menuLinks.home[0].to}
-                className="underline-offset-4 transition-all duration-150 ease-in hover:underline"
+                className="!text-primary underline-offset-4 transition-all duration-150 ease-in hover:!underline"
               >
                 {menuLinks.home[0].label}
               </Link>
@@ -112,9 +126,12 @@ export const Header = ({ className }) => {
                   items,
                 }}
               >
-                <span className="underline-offset-4 transition-all duration-150 ease-in hover:underline">
+                <Link
+                  to={menuLinks.dropdown?.to}
+                  className="!text-primary underline-offset-4 transition-all duration-150 ease-in hover:!underline"
+                >
                   {menuLinks.dropdown.label}
-                </span>
+                </Link>
               </Dropdown>
             </div>
           </div>
@@ -194,9 +211,61 @@ export const Header = ({ className }) => {
             onClick: handleSaveDraft,
           }}
         >
-          <p className="text-gray-500 mb-4">{HEADER_TEXTS.createClaimDescription}</p>
+          <p className="mb-4 text-gray-500">
+            {HEADER_TEXTS.createClaimDescription}
+          </p>
           <Form form={form} layout="vertical">
             <div className="flex-wrap gap-4">
+              <Form.Item
+                label="Staff Name"
+                name="staffName"
+                rules={[
+                  { required: true, message: "Please input the staff name!" },
+                ]}
+              >
+                <Input
+                  placeholder="Enter staff name"
+                  className="w-50 md:w-1/2"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Staff ID"
+                name="staffId"
+                rules={[
+                  { required: true, message: "Please input the staff ID!" },
+                ]}
+              >
+                <Input
+                  placeholder="Enter staff ID"
+                  className="w-full md:w-1/2"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Staff Department"
+                name="staffDepartment"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input the staff department!",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Enter staff department"
+                  className="w-full md:w-1/2"
+                />
+              </Form.Item>
+              <Form.Item
+                label="Project Name"
+                name="projectName"
+                rules={[
+                  { required: true, message: "Please input the project name!" },
+                ]}
+              >
+                <Input
+                  placeholder="Enter project name"
+                  className="w-full md:w-1/2"
+                />
               <Form.Item label="Staff Name" name="staffName" rules={[{ required: true, message: 'Please input the staff name!' }]}>
                 <Input
                   value={staffInfo?.name || ''}
@@ -230,10 +299,23 @@ export const Header = ({ className }) => {
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item label="Role" name="role" rules={[{ required: true, message: 'Please input the role!' }]}>
+              <Form.Item
+                label="Role"
+                name="role"
+                rules={[{ required: true, message: "Please input the role!" }]}
+              >
                 <Input placeholder="Enter role" className="w-full md:w-1/2" />
               </Form.Item>
-              <Form.Item label="Project Duration" name="projectDuration" rules={[{ required: true, message: 'Please select the project duration!' }]}>
+              <Form.Item
+                label="Project Duration"
+                name="projectDuration"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the project duration!",
+                  },
+                ]}
+              >
                 <RangePicker className="w-full md:w-2/2" />
               </Form.Item>
             </div>

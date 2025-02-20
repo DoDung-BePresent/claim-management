@@ -44,6 +44,14 @@ const SignUp = () => {
           onFinish={onFinish}
         >
           <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please input your name!" }]}
+            validateTrigger="onBlur"
+          >
+            <Input placeholder="john" />
+          </Form.Item>
+          <Form.Item
             label="Email"
             name="email"
             rules={[
