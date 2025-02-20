@@ -4,7 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
-import { mainLayoutLinks } from "@/constants/navLinks";
+import { HEADER_LINKS } from "@/constants/header";
+import { HEADER_TEXTS } from "@/constants";
+import Swal from "sweetalert2";
 import {
   Avatar,
   Badge,
@@ -14,14 +16,9 @@ import {
   Input,
   Form,
   DatePicker,
-  notification,
   App,
+  Select,
 } from "antd";
-import { HEADER_TEXTS } from "@/constants";
-import Swal from "sweetalert2";
-import { Avatar, Badge, Button, Dropdown, Modal, Input, Form, DatePicker, notification, App, Select } from "antd";
-import { HEADER_TEXTS } from "@/constants";
-import Swal from 'sweetalert2';
 import { projectNames } from "@/constants";
 import axios from "axios";
 
@@ -32,10 +29,10 @@ const { VITE_BASE_API_URL } = import.meta.env;
 export const Header = ({ className }) => {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-  const menuLinks = mainLayoutLinks.find((item) => item.role === user.role);
+  const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [staffInfo, setStaffInfo] = useState(null); // Trạng thái để lưu thông tin nhân viên
+  const [staffInfo, setStaffInfo] = useState(null);
 
   const items = menuLinks.dropdown.menu.map((item) => ({
     key: item.key,
@@ -66,7 +63,6 @@ export const Header = ({ className }) => {
       });
     }
   }, [staffInfo, form]);
-
 
   const handleLogout = () => {
     setUser(null);
@@ -266,32 +262,63 @@ export const Header = ({ className }) => {
                   placeholder="Enter project name"
                   className="w-full md:w-1/2"
                 />
-              <Form.Item label="Staff Name" name="staffName" rules={[{ required: true, message: 'Please input the staff name!' }]}>
+              </Form.Item>
+              <Form.Item
+                label="Staff Name"
+                name="staffName"
+                rules={[
+                  { required: true, message: "Please input the staff name!" },
+                ]}
+              >
                 <Input
-                  value={staffInfo?.name || ''}
+                  value={staffInfo?.name || ""}
                   disabled
                   className="w-50 md:w-1/2"
-                  style={{ color: 'inherit' }}
+                  style={{ color: "inherit" }}
                 />
               </Form.Item>
-              <Form.Item label="Staff ID" name="staffId" rules={[{ required: true, message: 'Please input the staff ID!' }]}>
+              <Form.Item
+                label="Staff ID"
+                name="staffId"
+                rules={[
+                  { required: true, message: "Please input the staff ID!" },
+                ]}
+              >
                 <Input
-                  value={staffInfo?.id || ''}
+                  value={staffInfo?.id || ""}
                   disabled
                   className="w-full md:w-1/2"
-                  style={{ color: 'inherit' }}
+                  style={{ color: "inherit" }}
                 />
               </Form.Item>
-              <Form.Item label="Staff Department" name="staffDepartment" rules={[{ required: true, message: 'Please input the staff ID!' }]}>
+              <Form.Item
+                label="Staff Department"
+                name="staffDepartment"
+                rules={[
+                  { required: true, message: "Please input the staff ID!" },
+                ]}
+              >
                 <Input
-                  value={staffInfo?.department || ''}
+                  value={staffInfo?.department || ""}
                   disabled
                   className="w-full md:w-1/2"
-                  style={{ color: 'inherit' }}
+                  style={{ color: "inherit" }}
                 />
               </Form.Item>
-              <Form.Item label="Project Name" name="projectName" rules={[{ required: true, message: 'Please select the project name!' }]}>
-                <Select placeholder="Select a project" className="w-full md:w-1/2">
+              <Form.Item
+                label="Project Name"
+                name="projectName"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the project name!",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Select a project"
+                  className="w-full md:w-1/2"
+                >
                   {projectNames.map((project) => (
                     <Select.Option key={project.key} value={project.label}>
                       {project.label}

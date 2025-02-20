@@ -1,4 +1,4 @@
-export const mainLayoutLinks = [
+export const HEADER_LINKS = [
   {
     role: "claimer",
     home: [
@@ -9,32 +9,38 @@ export const mainLayoutLinks = [
       },
     ],
     dropdown: {
+      to: "claim/view-claim",
       label: "My claim",
       menu: [
         {
           key: "1",
           label: "Draft",
-          to: "#",
+          to: "claim/view-claim?status=draft",
         },
         {
           key: "2",
           label: "Pending Approval",
-          to: "#",
+          to: "claim/view-claim?status=pending",
         },
         {
           key: "3",
           label: "Approved",
-          to: "#",
+          to: "claim/view-claim?status=approved",
         },
         {
           key: "4",
           label: "Paid",
-          to: "#",
+          to: "claim/view-claim?status=paid",
         },
         {
           key: "5",
-          label: "Rejected or Cancelled",
-          to: "#",
+          label: "Rejected",
+          to: "claim/view-claim?status=rejected",
+        },
+        {
+          key: "6",
+          label: "Cancelled",
+          to: "claim/view-claim?status=cancelled",
         },
       ],
     },

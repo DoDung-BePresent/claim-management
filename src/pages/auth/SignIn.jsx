@@ -1,8 +1,10 @@
-import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthProvider";
-import { authService } from "../../services/authService";
+
+import { Button, Form, Input, message } from "antd";
+
+import { authService } from "@/services/auth";
+import { useAuth } from "@/contexts/AuthProvider";
 
 const SignIn = () => {
   const [form] = Form.useForm();

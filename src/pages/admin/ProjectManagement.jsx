@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Form, Input, DatePicker, Select, Button, Table, Modal, Popconfirm } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../../index.css';
-import Header from '../../components/layout/Header';
-
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
