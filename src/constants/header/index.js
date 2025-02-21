@@ -1,4 +1,4 @@
-export const mainLayoutLinks = [
+export const HEADER_LINKS = [
   {
     role: "claimer",
     home: [
@@ -9,32 +9,38 @@ export const mainLayoutLinks = [
       },
     ],
     dropdown: {
+      to: "claim/claims",
       label: "My claim",
       menu: [
         {
           key: "1",
           label: "Draft",
-          to: "#",
+          to: "claim/claims?status=draft",
         },
         {
           key: "2",
           label: "Pending Approval",
-          to: "#",
+          to: "claim/claims?status=pending",
         },
         {
           key: "3",
           label: "Approved",
-          to: "#",
+          to: "claim/claims?status=approved",
         },
         {
           key: "4",
           label: "Paid",
-          to: "#",
+          to: "claim/claims?status=paid",
         },
         {
           key: "5",
-          label: "Rejected or Cancelled",
-          to: "#",
+          label: "Rejected",
+          to: "claim/claims?status=rejected",
+        },
+        {
+          key: "6",
+          label: "Cancelled",
+          to: "claim/claims?status=cancelled",
         },
       ],
     },
@@ -45,21 +51,27 @@ export const mainLayoutLinks = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
+      to: "approver/claims",
       label: "Claim for approval",
       menu: [
         {
           key: "1",
           label: "For My Vetting",
-          to: "#",
+          to: "approver/claims?status=pending",
         },
         {
           key: "2",
-          label: "Approved or Paid",
-          to: "#",
+          label: "Approved",
+          to: "approver/claims?status=approved",
+        },
+        {
+          key: "3",
+          label: "Paid",
+          to: "approver/claims?status=paid",
         },
       ],
     },
@@ -70,22 +82,22 @@ export const mainLayoutLinks = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
-      to: "finance",
+      to: "finance/claims",
       label: "Claim for finance",
       menu: [
         {
           key: "1",
           label: "Approved",
-          to: "finance?status=approved",
+          to: "finance/claims?status=approved",
         },
         {
           key: "2",
           label: "Paid",
-          to: "finance?status=paid",
+          to: "finance/claims?status=paid",
         },
       ],
     },
@@ -96,23 +108,41 @@ export const mainLayoutLinks = [
       {
         key: "1",
         label: "Home",
-        to: "#",
+        to: "/",
       },
     ],
     dropdown: {
+      to: "manage/claims",
       label: "Configuration",
       menu: [
         {
           key: "1",
           label: "Staff Information",
-          to: "#",
+          to: "manage/staffs",
         },
         {
           key: "2",
           label: "Project Information",
-          to: "manage/project",
+          to: "manage/projects",
         },
       ],
     },
   },
+];
+
+export const HEADER_TEXTS = {
+  createClaimTitle: "Create Claim",
+  createClaimDescription: "Click Create claim when you're done",
+  createClaimButton: "Create Claim",
+  saveDraftButton: "Save draft",
+  myAccount: "My Account",
+  profile: "Profile",
+  settings: "Settings",
+  logout: "Logout",
+};
+
+export const projectNames = [
+  { key: 'project1', label: 'Dự án 1' },
+  { key: 'project2', label: 'Dự án 2' },
+  { key: 'project3', label: 'Dự án 3' },
 ];

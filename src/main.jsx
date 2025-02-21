@@ -14,6 +14,7 @@ createRoot(document.getElementById("root")).render(
           borderRadius: 5,
           colorPrimary: "hsl(240 5.9% 10%)",
           fontFamily: "Inter",
+          colorInfo: "hsl(240 5.9% 10%)",
         },
         components: {
           Button: {
@@ -21,6 +22,12 @@ createRoot(document.getElementById("root")).render(
           },
           Form: {
             itemMarginBottom: 15,
+          },
+          DatePicker: {
+            cellActiveWithRangeBg: "hsl(240 5% 96%)",
+          },
+          Select: {
+            optionSelectedBg: "hsl(240 5% 96%)",
           },
         },
       }}
