@@ -38,29 +38,39 @@ const FinancePage = () => {
     setIsModalOpen(false);
   };
 
-  const getActionItems = (record) => [
-    {
-      key: "view",
-      label: "View",
-      icon: <Eye className="h-4 w-4" />,
-      onClick: () => console.log("View", record),
-    },
-    {
-      key: "print",
-      label: "Print",
-      icon: <Printer className="h-4 w-4" />,
-      onClick: () => console.log("Print", record),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "paid",
-      label: "Paid",
-      icon: <DollarSign className="h-4 w-4" />,
-      onClick: () => handlePaid(record),
-    },
-  ];
+  const getActionItems = (record) => {
+    const baseActions = [
+      {
+        key: "view",
+        label: "View",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: () => console.log("View", record),
+      },
+      {
+        key: "print",
+        label: "Print",
+        icon: <Printer className="h-4 w-4" />,
+        onClick: () => console.log("Print", record),
+      },
+    ];
+
+    if (record.status === "Paid") {
+      return baseActions;
+    }
+
+    return [
+      ...baseActions,
+      {
+        type: "divider",
+      },
+      {
+        key: "paid",
+        label: "Paid",
+        icon: <DollarSign className="h-4 w-4" />,
+        onClick: () => handlePaid(record),
+      },
+    ];
+  };
 
   const columns = [
     {
