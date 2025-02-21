@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { cn } from "@/lib/utils";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
-import { HEADER_LINKS } from "@/constants/header";
-import { HEADER_TEXTS } from "@/constants";
-import { Avatar, Badge, Button, Dropdown, App, Form } from "antd";
-import { CreateClaimModal } from "@/components/claimer/CreateClaimModal";
-
-const { VITE_BASE_API_URL } = import.meta.env;
+import { HEADER_LINKS, HEADER_TEXTS } from "@/constants/header";
+import { Avatar, Badge, Button, Dropdown, Form } from "antd";
+import { ClaimModal } from "@/components/claimer/ClaimModal";
+import { claimerService } from "@/services/claimer";
 
 export const Header = ({ className }) => {
   const navigate = useNavigate();
@@ -25,18 +22,13 @@ export const Header = ({ className }) => {
     label: <Link to={item.to}>{item.label}</Link>,
   }));
 
-  const fetchUserById = async (id) => {
-    try {
-      const response = await axios.get(`${VITE_BASE_API_URL}/users/${id}`);
-      setStaffInfo(response.data);
-    } catch (error) {
-      console.error("Error fetching staff info:", error);
-    }
-  };
-
   useEffect(() => {
     if (user?.id) {
-      fetchUserById(user.id);
+      const getUser = async () => {
+        const staff = await claimerService.getUserInfo(user?.id);
+        setStaffInfo(staff);
+      };
+      getUser();
     }
   }, [user]);
 
@@ -61,24 +53,38 @@ export const Header = ({ className }) => {
         <div className="flex items-center gap-5">
           <Logo />
           <div className="flex items-center gap-4">
-            <Link
+            <NavLink
               to={menuLinks.home[0].to}
-              className="!text-primary underline-offset-4 transition-all duration-150 ease-in hover:!underline"
+              className={({ isActive }) =>
+                cn(
+                  "transition-all duration-150 ease-in",
+                  isActive
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground",
+                )
+              }
             >
               {menuLinks.home[0].label}
-            </Link>
-            <Dropdown
-              menu={{
-                items,
-              }}
+            </NavLink>
+            <NavLink
+              to={menuLinks.dropdown?.to}
+              className={({ isActive }) =>
+                cn(
+                  "transition-all duration-150 ease-in",
+                  isActive
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground hover:text-foreground",
+                )
+              }
             >
-              <Link
-                to={menuLinks.dropdown?.to}
-                className="!text-primary underline-offset-4 transition-all duration-150 ease-in hover:!underline"
+              <Dropdown
+                menu={{
+                  items,
+                }}
               >
                 {menuLinks.dropdown.label}
-              </Link>
-            </Dropdown>
+              </Dropdown>
+            </NavLink>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -146,7 +152,7 @@ export const Header = ({ className }) => {
         </div>
       </div>
 
-      <CreateClaimModal
+      <ClaimModal
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         form={form}

@@ -6,7 +6,7 @@ import ViewClaim from "@/pages/claimer/ViewClaim"
 const Claimer = () => {
   return (
     <Routes>
-      <Route path="view-claim" element={<ViewClaim />} />
+      <Route path="claims" element={<ViewClaim />} />
     </Routes>
   );
 };

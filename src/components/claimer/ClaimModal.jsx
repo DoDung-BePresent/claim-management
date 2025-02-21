@@ -1,10 +1,10 @@
 import React from "react";
 import { Form, Input, DatePicker, Select, Modal, notification } from "antd";
-import { projectNames, HEADER_TEXTS } from "@/constants";
+import { projectNames, HEADER_TEXTS } from "@/constants/header";
 
 const { RangePicker } = DatePicker;
 
-export const CreateClaimModal = ({
+export const ClaimModal = ({
   isModalVisible,
   setIsModalVisible,
   form,
@@ -43,6 +43,7 @@ export const CreateClaimModal = ({
         onCancel={() => setIsModalVisible(false)}
         okText={HEADER_TEXTS.createClaimButton}
         cancelText={HEADER_TEXTS.saveDraftButton}
+        style={{ top: 40 }}
         cancelButtonProps={{
           onClick: handleSaveDraft,
         }}
@@ -132,7 +133,7 @@ export const CreateClaimModal = ({
                 },
               ]}
             >
-              <RangePicker className="w-full md:w-1/2" />
+              <RangePicker className="w-full" />
             </Form.Item>
           </div>
         </Form>

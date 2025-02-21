@@ -6,7 +6,7 @@ import FinancePage from "@/pages/finance/FinancePage";
 const Finance = () => {
   return (
     <Routes>
-      <Route path="view-claim" element={<FinancePage />} />
+      <Route path="claims" element={<FinancePage />} />
     </Routes>
   );
 };

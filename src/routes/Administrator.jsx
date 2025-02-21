@@ -7,8 +7,8 @@ import StaffManagement from "@/pages/admin/StaffManagement";
 const Administrator = () => {
   return (
     <Routes>
-      <Route path="manage/project" element={<ProjectManagement />} />
-      <Route path="manage/staff" element={<StaffManagement />} />
+      <Route path="projects" element={<ProjectManagement />} />
+      <Route path="staffs" element={<StaffManagement />} />
     </Routes>
   );
 };

@@ -5,7 +5,7 @@ import ClaimsPage from '@/pages/approver/ClaimApprovalPage'
 const Approver = () => {
   return (
     <Routes>
-      <Route path="view-claim" element={<ClaimsPage />} />
+      <Route path="claims" element={<ClaimsPage />} />
     </Routes>
   )
 }

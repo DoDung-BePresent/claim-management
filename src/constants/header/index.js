@@ -9,38 +9,38 @@ export const HEADER_LINKS = [
       },
     ],
     dropdown: {
-      to: "claim/view-claim",
+      to: "claim/claims",
       label: "My claim",
       menu: [
         {
           key: "1",
           label: "Draft",
-          to: "claim/view-claim?status=draft",
+          to: "claim/claims?status=draft",
         },
         {
           key: "2",
           label: "Pending Approval",
-          to: "claim/view-claim?status=pending",
+          to: "claim/claims?status=pending",
         },
         {
           key: "3",
           label: "Approved",
-          to: "claim/view-claim?status=approved",
+          to: "claim/claims?status=approved",
         },
         {
           key: "4",
           label: "Paid",
-          to: "claim/view-claim?status=paid",
+          to: "claim/claims?status=paid",
         },
         {
           key: "5",
           label: "Rejected",
-          to: "claim/view-claim?status=rejected",
+          to: "claim/claims?status=rejected",
         },
         {
           key: "6",
           label: "Cancelled",
-          to: "claim/view-claim?status=cancelled",
+          to: "claim/claims?status=cancelled",
         },
       ],
     },
@@ -55,23 +55,23 @@ export const HEADER_LINKS = [
       },
     ],
     dropdown: {
-      to: "approver/view-claim",
+      to: "approver/claims",
       label: "Claim for approval",
       menu: [
         {
           key: "1",
           label: "For My Vetting",
-          to: "approver/view-claim?status=pending",
+          to: "approver/claims?status=pending",
         },
         {
           key: "2",
           label: "Approved",
-          to: "approver/view-claim?status=approved",
+          to: "approver/claims?status=approved",
         },
         {
           key: "3",
           label: "Paid",
-          to: "approver/view-claim?status=paid",
+          to: "approver/claims?status=paid",
         },
       ],
     },
@@ -86,18 +86,18 @@ export const HEADER_LINKS = [
       },
     ],
     dropdown: {
-      to: "finance/view-claim",
+      to: "finance/claims",
       label: "Claim for finance",
       menu: [
         {
           key: "1",
           label: "Approved",
-          to: "finance/view-claim?status=approved",
+          to: "finance/claims?status=approved",
         },
         {
           key: "2",
           label: "Paid",
-          to: "finance/view-claim?status=paid",
+          to: "finance/claims?status=paid",
         },
       ],
     },
@@ -112,19 +112,37 @@ export const HEADER_LINKS = [
       },
     ],
     dropdown: {
+      to: "manage/claims",
       label: "Configuration",
       menu: [
         {
           key: "1",
           label: "Staff Information",
-          to: "#",
+          to: "manage/staffs",
         },
         {
           key: "2",
           label: "Project Information",
-          to: "manage/project",
+          to: "manage/projects",
         },
       ],
     },
   },
+];
+
+export const HEADER_TEXTS = {
+  createClaimTitle: "Create Claim",
+  createClaimDescription: "Click Create claim when you're done",
+  createClaimButton: "Create Claim",
+  saveDraftButton: "Save draft",
+  myAccount: "My Account",
+  profile: "Profile",
+  settings: "Settings",
+  logout: "Logout",
+};
+
+export const projectNames = [
+  { key: 'project1', label: 'Dự án 1' },
+  { key: 'project2', label: 'Dự án 2' },
+  { key: 'project3', label: 'Dự án 3' },
 ];

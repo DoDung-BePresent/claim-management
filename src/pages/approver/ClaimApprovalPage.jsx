@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table, Tag, Button, Dropdown } from "antd";
-import { DUMMY_CLAIMS, STATUS_COLORS } from "@/constants/approver";
+import { DUMMY_CLAIMS } from "@/constants/approver";
+import { STATUS_COLORS } from "@/constants/common";
 import {
   Eye,
   CheckCircle,

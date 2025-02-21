@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table, Tag, Button, Dropdown } from "antd";
-import { DUMMY_CLAIMS, STATUS_COLORS } from "@/constants/claimer";
+import { DUMMY_CLAIMS } from "@/constants/claimer";
+import { STATUS_COLORS } from "@/constants/common";
 import { Delete, Edit, Eye, Send, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 

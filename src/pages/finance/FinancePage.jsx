@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Table, Tag, Button, Dropdown, Modal } from "antd";
 import { Eye, Printer, DollarSign, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { DUMMY_CLAIMS, STATUS_COLORS } from "@/constants/finance";
+import { DUMMY_CLAIMS } from "@/constants/finance";
+import { STATUS_COLORS } from "@/constants/common";
 
 const FinancePage = () => {
   const [searchParams] = useSearchParams();

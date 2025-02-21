@@ -23,6 +23,12 @@ createRoot(document.getElementById("root")).render(
           Form: {
             itemMarginBottom: 15,
           },
+          DatePicker: {
+            cellActiveWithRangeBg: "hsl(240 5% 96%)",
+          },
+          Select: {
+            optionSelectedBg: "hsl(240 5% 96%)",
+          },
         },
       }}
     >
