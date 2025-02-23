@@ -11,6 +11,8 @@ const FinancePage = () => {
   const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingClaim, setViewingClaim] = useState(null);
 
   useEffect(() => {
     if (statusParam) {
@@ -38,29 +40,44 @@ const FinancePage = () => {
     setIsModalOpen(false);
   };
 
-  const getActionItems = (record) => [
-    {
-      key: "view",
-      label: "View",
-      icon: <Eye className="h-4 w-4" />,
-      onClick: () => console.log("View", record),
-    },
-    {
-      key: "print",
-      label: "Print",
-      icon: <Printer className="h-4 w-4" />,
-      onClick: () => console.log("Print", record),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "paid",
-      label: "Paid",
-      icon: <DollarSign className="h-4 w-4" />,
-      onClick: () => handlePaid(record),
-    },
-  ];
+  const handleView = (record) => {
+    setViewingClaim(record);
+    setIsViewModalOpen(true);
+  };
+
+  const getActionItems = (record) => {
+    const baseActions = [
+      {
+        key: "view",
+        label: "View",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: () => handleView(record),
+      },
+      {
+        key: "print",
+        label: "Print",
+        icon: <Printer className="h-4 w-4" />,
+        onClick: () => console.log("Print", record),
+      },
+    ];
+
+    if (record.status === "Paid") {
+      return baseActions;
+    }
+
+    return [
+      ...baseActions,
+      {
+        type: "divider",
+      },
+      {
+        key: "paid",
+        label: "Paid",
+        icon: <DollarSign className="h-4 w-4" />,
+        onClick: () => handlePaid(record),
+      },
+    ];
+  };
 
   const columns = [
     {
@@ -152,6 +169,50 @@ const FinancePage = () => {
         cancelText="Cancel"
       >
         <p>Are you sure you want to mark claim #{selectedClaim?.id} as paid?</p>
+      </Modal>
+
+      <Modal
+        title={<h2 className="text-xl font-semibold">Claim Details</h2>}
+        open={isViewModalOpen}
+        onCancel={() => setIsViewModalOpen(false)}
+        footer={null}
+        width={700}
+      >
+        {viewingClaim && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-500 text-sm">Claim ID</p>
+                <p className="font-medium">{viewingClaim.id}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Status</p>
+                <Tag color={STATUS_COLORS[viewingClaim.status]}>
+                  {viewingClaim.status}
+                </Tag>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Staff Name</p>
+                <p className="font-medium">{viewingClaim.staffName}</p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Project Name</p>
+                <p className="font-medium">{viewingClaim.projectName}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-gray-500 text-sm">Project Duration</p>
+                <p className="font-medium">
+                  From {new Date(viewingClaim.startDate).toDateString()} to{" "}
+                  {new Date(viewingClaim.endDate).toDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-sm">Total Working Hours</p>
+                <p className="font-medium">{viewingClaim.totalWorking} hours</p>
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
