@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Dropdown, Modal, Avatar } from "antd";
+import { Table, Tag, Button, Dropdown, Modal } from "antd"; // Add Modal
 import { DUMMY_CLAIMS } from "@/constants/approver";
 import { STATUS_COLORS } from "@/constants/common";
 import {
@@ -15,8 +15,15 @@ const ClaimApprovalPage = () => {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState(null);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     if (statusParam) {
@@ -38,56 +45,78 @@ const ClaimApprovalPage = () => {
     );
   };
 
-  const handleViewClick = (record) => {
+  const handleView = (record) => {
     setSelectedClaim(record);
-    setIsModalVisible(true);
+    setViewModalVisible(true);
+  };
+
+  const handleStatusAction = (record, action) => {
+    setSelectedClaim(record);
+    setConfirmAction(action);
+    setConfirmModalVisible(true);
+  };
+
+  const confirmStatusChange = () => {
+    if (confirmAction && selectedClaim) {
+      const statusMap = {
+        approve: "Approved",
+        reject: "Rejected",
+        return: "Returned",
+      };
+
+      handleStatusChange(selectedClaim, statusMap[confirmAction]);
+      setConfirmModalVisible(false);
+      setSelectedClaim(null);
+      setConfirmAction(null);
+    }
   };
 
   const getActionItems = (record) => {
-    const actions = [
+    const baseActions = [
       {
         key: "view",
         label: "View",
         icon: <Eye className="h-4 w-4" />,
-        onClick: () => handleViewClick(record),
+        onClick: () => handleView(record),
       },
     ];
 
-    if (record.status !== "Approved" && record.status !== "Rejected" && record.status !== "Returned") {
-      actions.push(
-        {
-          type: "divider",
-        },
+    if (record.status === "Pending") {
+      return [
+        ...baseActions,
+        { type: "divider" },
         {
           key: "approve",
           label: "Approve",
           icon: <CheckCircle className="h-4 w-4" />,
-          onClick: () => handleStatusChange(record, "Approved"),
+          onClick: () => handleStatusAction(record, "approve"),
         },
         {
           key: "reject",
           label: "Reject",
           icon: <XCircle className="h-4 w-4" />,
           danger: true,
-          onClick: () => handleStatusChange(record, "Rejected"),
+          onClick: () => handleStatusAction(record, "reject"),
         },
         {
           key: "return",
           label: "Return",
           icon: <RotateCcw className="h-4 w-4" />,
-          onClick: () => handleStatusChange(record, "Returned"),
-        }
-      );
+          onClick: () => handleStatusAction(record, "return"),
+        },
+      ];
     }
 
-    return actions;
+    return baseActions;
   };
 
   const columns = [
     {
       title: "Id",
       dataIndex: "id",
-      sorter: (a, b) => a.id - b.id,
+      render: (_text, _record, index) => {
+        return (pagination.current - 1) * pagination.pageSize + index + 1;
+      },
     },
     {
       title: "Status",
@@ -163,23 +192,77 @@ const ClaimApprovalPage = () => {
           size: "default",
           pageSize: 10,
         }}
+        onChange={(pagination) => setPagination(pagination)}
       />
+
+      {/* View Modal */}
       <Modal
-        title="Claim Details"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        title="View Claim Details"
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setSelectedClaim(null);
+        }}
         footer={null}
+        width={700}
       >
         {selectedClaim && (
-          <div className="flex flex-col items-center gap-4">
-            <Avatar size={64} src={selectedClaim.avatarUrl} />
-            <p><strong>Staff Name:</strong> {selectedClaim.staffName}</p>
-            <p><strong>Project Name:</strong> {selectedClaim.projectName}</p>
-            <p><strong>Project Duration:</strong> From {new Date(selectedClaim.startDate).toDateString()} to {new Date(selectedClaim.endDate).toDateString()}</p>
-            <p><strong>Total Working:</strong> {selectedClaim.totalWorking} hours</p>
-            <p><strong>Total Claim Amount:</strong> ${selectedClaim.totalClaimAmount}</p>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-muted-foreground">Claim ID</p>
+                <p className="font-medium">{selectedClaim.id}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Staff Name</p>
+                <p className="font-medium">{selectedClaim.staffName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Project Name</p>
+                <p className="font-medium">{selectedClaim.projectName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Status</p>
+                <Tag color={STATUS_COLORS[selectedClaim.status]}>
+                  {selectedClaim.status}
+                </Tag>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Project Duration</p>
+                <p className="font-medium">
+                  From {new Date(selectedClaim.startDate).toDateString()} to{" "}
+                  {new Date(selectedClaim.endDate).toDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Total Working Hours</p>
+                <p className="font-medium">
+                  {selectedClaim.totalWorking} hours
+                </p>
+              </div>
+            </div>
           </div>
         )}
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Confirm Action"
+        open={confirmModalVisible}
+        onOk={confirmStatusChange}
+        onCancel={() => {
+          setConfirmModalVisible(false);
+          setSelectedClaim(null);
+          setConfirmAction(null);
+        }}
+        okText="Confirm"
+        cancelText="Cancel"
+        okButtonProps={{ danger: confirmAction === ("reject" || "return") }}
+      >
+        <p>
+          Are you sure you want to {confirmAction} this claim from{" "}
+          {selectedClaim?.staffName}?
+        </p>
       </Modal>
     </div>
   );
