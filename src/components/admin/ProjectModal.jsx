@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Form, Input, DatePicker, Select, Button } from "antd";
+import { createProject, updateProject } from "@/services/API/apiService";
 
 const { RangePicker } = DatePicker;
 
@@ -9,7 +10,38 @@ const ProjectModal = ({
   onCancel,
   onSubmit,
   form,
+  loadProjects,
+  pmOptions,
+  qaOptions,
+  technicalLeadOptions,
+  baOptions,
+  developerOptions,
+  testerOptions,
+  consultancyOptions,
 }) => {
+  const handleFinish = async (values) => {
+    const [startDate, endDate] = values.projectDuration;
+    const formattedValues = {
+      ...values,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    };
+    delete formattedValues.projectDuration;
+
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, formattedValues);
+      } else {
+        await createProject(formattedValues);
+      }
+      loadProjects(); 
+      onCancel(); 
+      form.resetFields(); 
+    } catch (error) {
+  
+    }
+  };
+
   return (
     <Modal
       title={editingProject ? "Edit Project" : "Create New Project"}
@@ -19,7 +51,7 @@ const ProjectModal = ({
       footer={null}
       width={600}
     >
-      <Form form={form} layout="vertical" onFinish={onSubmit} className="pt-4">
+      <Form form={form} layout="vertical" onFinish={handleFinish} className="pt-4">
         <div className="grid grid-cols-2 gap-x-4">
           <Form.Item
             label="Project Name"
@@ -58,8 +90,11 @@ const ProjectModal = ({
             rules={[{ required: true, message: "Please select PM!" }]}
           >
             <Select placeholder="Select PM">
-              <Select.Option value="John Doe">John Doe</Select.Option>
-              <Select.Option value="Jane Smith">Jane Smith</Select.Option>
+              {pmOptions.map((pm) => (
+                <Select.Option key={pm} value={pm}>
+                  {pm}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -69,8 +104,11 @@ const ProjectModal = ({
             rules={[{ required: true, message: "Please select QA!" }]}
           >
             <Select placeholder="Select QA">
-              <Select.Option value="Alice Johnson">Alice Johnson</Select.Option>
-              <Select.Option value="Bob Wilson">Bob Wilson</Select.Option>
+              {qaOptions.map((qa) => (
+                <Select.Option key={qa} value={qa}>
+                  {qa}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -87,8 +125,11 @@ const ProjectModal = ({
               className="w-full"
               maxTagCount="responsive"
             >
-              <Select.Option value="Tech Lead 1">Tech Lead 1</Select.Option>
-              <Select.Option value="Tech Lead 2">Tech Lead 2</Select.Option>
+              {technicalLeadOptions.map((lead) => (
+                <Select.Option key={lead} value={lead}>
+                  {lead}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -103,8 +144,11 @@ const ProjectModal = ({
               className="w-full"
               maxTagCount="responsive"
             >
-              <Select.Option value="BA 1">BA 1</Select.Option>
-              <Select.Option value="BA 2">BA 2</Select.Option>
+              {baOptions.map((ba) => (
+                <Select.Option key={ba} value={ba}>
+                  {ba}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -120,8 +164,11 @@ const ProjectModal = ({
               className="w-full"
               maxTagCount="responsive"
             >
-              <Select.Option value="Dev 1">Dev 1</Select.Option>
-              <Select.Option value="Dev 2">Dev 2</Select.Option>
+              {developerOptions.map((dev) => (
+                <Select.Option key={dev} value={dev}>
+                  {dev}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -137,8 +184,11 @@ const ProjectModal = ({
               className="w-full"
               maxTagCount="responsive"
             >
-              <Select.Option value="Tester 1">Tester 1</Select.Option>
-              <Select.Option value="Tester 2">Tester 2</Select.Option>
+              {testerOptions.map((tester) => (
+                <Select.Option key={tester} value={tester}>
+                  {tester}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -159,8 +209,11 @@ const ProjectModal = ({
               className="w-full"
               maxTagCount="responsive"
             >
-              <Select.Option value="Consultant 1">Consultant 1</Select.Option>
-              <Select.Option value="Consultant 2">Consultant 2</Select.Option>
+              {consultancyOptions.map((consultant) => (
+                <Select.Option key={consultant} value={consultant}>
+                  {consultant}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
         </div>

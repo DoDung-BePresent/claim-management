@@ -1,17 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Dropdown, Form } from "antd";
 import { Edit, Trash, MoreHorizontal, Plus } from "lucide-react";
-import { DUMMY_STAFFS } from "@/constants/admin";
 import StaffModal from "@/components/admin/StaffModal";
+import { fetchStaff, deleteStaff } from "@/services/API/apiService";
 
 const StaffManagement = () => {
   const [form] = Form.useForm();
-  const [dataSource, setDataSource] = useState(DUMMY_STAFFS);
+  const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
 
-  const handleDelete = (record) => {
-    setDataSource((prev) => prev.filter((item) => item.id !== record.id));
+  useEffect(() => {
+    loadStaff();
+  }, []);
+
+  const loadStaff = async () => {
+    try {
+      const staff = await fetchStaff();
+      setDataSource(staff);
+    } catch (error) { 
+
+    }
+  };
+
+  const handleDelete = async (record) => {
+    try {
+      await deleteStaff(record.id);
+      loadStaff();
+    } catch (error) {
+
+    }
   };
 
   const showModal = (record = null) => {
@@ -24,25 +42,19 @@ const StaffManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleSubmit = (values) => {
-    if (editingStaff) {
-      setDataSource((prev) =>
-        prev.map((item) =>
-          item.id === editingStaff.id ? { ...item, ...values } : item,
-        ),
-      );
-    } else {
-      setDataSource((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          key: prev.length + 1,
-          ...values,
-        },
-      ]);
+  const handleSubmit = async (values) => {
+    try {
+      if (editingStaff) {
+        await updateStaff(editingStaff.id, values);
+      } else {
+        await createStaff(values);
+      }
+      loadStaff();
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      
     }
-    setIsModalVisible(false);
-    form.resetFields();
   };
 
   const handleCancel = () => {
@@ -116,6 +128,10 @@ const StaffManagement = () => {
     },
   ];
 
+  // Extract unique options from the dataSource
+  const staffOptions = [...new Set(dataSource.map((item) => item.staffName))];
+  const departmentOptions = ["IT", "HR", "Finance"];
+
   return (
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-end">
@@ -132,6 +148,7 @@ const StaffManagement = () => {
         size="small"
         columns={columns}
         dataSource={dataSource}
+        rowKey="id" // Ensure each row has a unique key
         pagination={{
           pageSize: 10,
           size: "default",
@@ -144,6 +161,9 @@ const StaffManagement = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         form={form}
+        loadStaff={loadStaff} 
+        staffOptions={staffOptions}
+        departmentOptions={departmentOptions}
       />
     </div>
   );
