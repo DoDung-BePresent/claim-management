@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Form, Input, Select, Button, InputNumber } from "antd";
+import { createStaff, updateStaff } from "@/services/API/apiService";
 
 const StaffModal = ({
   isModalVisible,
@@ -7,7 +8,25 @@ const StaffModal = ({
   onCancel,
   onSubmit,
   form,
+  loadStaff, 
+  staffOptions,
+  departmentOptions,
 }) => {
+  const handleFinish = async (values) => {
+    try {
+      if (editingStaff) {
+        await updateStaff(editingStaff.id, values);
+      } else {
+        await createStaff(values);
+      }
+      loadStaff(); 
+      onCancel(); 
+      form.resetFields(); 
+    } catch (error) {
+
+    }
+  };
+
   return (
     <Modal
       title={editingStaff ? "Edit Staff" : "Create New Staff"}
@@ -17,7 +36,7 @@ const StaffModal = ({
       footer={null}
       width={600}
     >
-      <Form form={form} layout="vertical" onFinish={onSubmit} className="pt-4">
+      <Form form={form} layout="vertical" onFinish={handleFinish} className="pt-4">
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
             label="Staff Name"
@@ -25,8 +44,11 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please select staff name!" }]}
           >
             <Select placeholder="Select staff">
-              <Select.Option value="John Doe">John Doe</Select.Option>
-              <Select.Option value="Jane Smith">Jane Smith</Select.Option>
+              {staffOptions.map((staff) => (
+                <Select.Option key={staff} value={staff}>
+                  {staff}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -36,9 +58,11 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please select department!" }]}
           >
             <Select placeholder="Select department">
-              <Select.Option value="IT">IT</Select.Option>
-              <Select.Option value="HR">HR</Select.Option>
-              <Select.Option value="Finance">Finance</Select.Option>
+              {departmentOptions.map((department) => (
+                <Select.Option key={department} value={department}>
+                  {department}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 

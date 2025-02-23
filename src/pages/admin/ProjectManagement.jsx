@@ -1,18 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Dropdown, Form } from "antd";
 import { Edit, Trash, MoreHorizontal, Plus } from "lucide-react";
-import { DUMMY_PROJECTS } from "@/constants/admin";
 import dayjs from "dayjs";
 import ProjectModal from "@/components/admin/ProjectModal";
+import { fetchProjects, deleteProject } from "@/services/API/apiService";
 
 const ProjectManagement = () => {
   const [form] = Form.useForm();
-  const [dataSource, setDataSource] = useState(DUMMY_PROJECTS);
+  const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
-  const handleDelete = (record) => {
-    setDataSource((prev) => prev.filter((item) => item.id !== record.id));
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      const projects = await fetchProjects();
+      setDataSource(projects);
+    } catch (error) {
+
+    }
+  };
+
+  const handleDelete = async (record) => {
+    try {
+      await deleteProject(record.id);
+      loadProjects();
+    } catch (error) {
+
+    }
   };
 
   const showModal = (record = null) => {
@@ -28,7 +46,7 @@ const ProjectManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     const [startDate, endDate] = values.projectDuration;
     const formattedValues = {
       ...values,
@@ -37,26 +55,18 @@ const ProjectManagement = () => {
     };
     delete formattedValues.projectDuration;
 
-    if (editingProject) {
-      setDataSource((prev) =>
-        prev.map((item) =>
-          item.id === editingProject.id
-            ? { ...item, ...formattedValues }
-            : item,
-        ),
-      );
-    } else {
-      setDataSource((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          key: prev.length + 1,
-          ...formattedValues,
-        },
-      ]);
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, formattedValues);
+      } else {
+        await createProject(formattedValues);
+      }
+      loadProjects();
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+    
     }
-    setIsModalVisible(false);
-    form.resetFields();
   };
 
   const handleCancel = () => {
@@ -131,31 +141,31 @@ const ProjectManagement = () => {
       key: "Technical Lead",
       title: "Technical Lead",
       dataIndex: "technicalLead",
-      render: (technicalLead) => technicalLead.join(", "),
+      render: (technicalLead) => Array.isArray(technicalLead) ? technicalLead.join(", ") : technicalLead,
     },
     {
       key: "BA",
       title: "BA",
       dataIndex: "ba",
-      render: (ba) => ba.join(", "),
+      render: (ba) => Array.isArray(ba) ? ba.join(", ") : ba,
     },
     {
       key: "Developers",
       title: "Developers",
       dataIndex: "developers",
-      render: (developers) => developers.join(", "),
+      render: (developers) => Array.isArray(developers) ? developers.join(", ") : developers,
     },
     {
       key: "Testers",
       title: "Testers",
       dataIndex: "testers",
-      render: (testers) => testers.join(", "),
+      render: (testers) => Array.isArray(testers) ? testers.join(", ") : testers,
     },
     {
       key: "Technical Consultancy",
       title: "Technical Consultancy",
       dataIndex: "technicalConsultancy",
-      render: (technicalConsultancy) => technicalConsultancy.join(", "),
+      render: (technicalConsultancy) => Array.isArray(technicalConsultancy) ? technicalConsultancy.join(", ") : technicalConsultancy,
     },
     {
       key: "Actions",
@@ -178,6 +188,15 @@ const ProjectManagement = () => {
     },
   ];
 
+  // Extract unique options from the dataSource
+  const pmOptions = [...new Set(dataSource.map((item) => item.pm))];
+  const qaOptions = [...new Set(dataSource.map((item) => item.qa))];
+  const technicalLeadOptions = [...new Set(dataSource.map((item) => item.technicalLead))];
+  const baOptions = [...new Set(dataSource.map((item) => item.ba))];
+  const developerOptions = [...new Set(dataSource.map((item) => item.developers))];
+  const testerOptions = [...new Set(dataSource.map((item) => item.testers))];
+  const consultancyOptions = [...new Set(dataSource.map((item) => item.technicalConsultancy))];
+
   return (
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-end">
@@ -194,6 +213,7 @@ const ProjectManagement = () => {
         size="small"
         columns={columns}
         dataSource={dataSource}
+        rowKey="id" 
         pagination={{
           pageSize: 10,
           size: "default",
@@ -207,6 +227,14 @@ const ProjectManagement = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         form={form}
+        loadProjects={loadProjects} 
+        pmOptions={pmOptions}
+        qaOptions={qaOptions}
+        technicalLeadOptions={technicalLeadOptions}
+        baOptions={baOptions}
+        developerOptions={developerOptions}
+        testerOptions={testerOptions}
+        consultancyOptions={consultancyOptions}
       />
     </div>
   );
