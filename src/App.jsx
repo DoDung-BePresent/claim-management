@@ -16,8 +16,6 @@ import Claimer from "@/routes/Claimer";
 import Finance from "@/routes/Finance";
 import Approver from "@/routes/Approver";
 import Administrator from "@/routes/Administrator";
-import ProjectManagement from "./pages/admin/ProjectManagement";
-import StaffManagement from "./pages/admin/StaffManagement";
 
 const App = () => {
   const { user } = useAuth();
@@ -56,7 +54,6 @@ const App = () => {
           <Route path="sign-up" element={<SignUp />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
-        <Route path="/aa" element={<StaffManagement/>}></Route>
       </Routes>
     </BrowserRouter>
   );
