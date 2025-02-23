@@ -110,7 +110,7 @@ const ProjectManagement = () => {
       title: "Id",
       dataIndex: "id",
       fixed: "left",
-      width: 50,
+      width: 100,
       render: (_text, _record, index) => {
         return (pagination.current - 1) * pagination.pageSize + index + 1;
       },
