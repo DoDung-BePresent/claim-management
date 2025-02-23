@@ -8,13 +8,13 @@ export const authService = {
           email: credentials.email,
         },
       });
-
+      console.log(data);
       const user = data.find(
         (user) =>
           user.email === credentials.email &&
           user.password === credentials.password,
       );
-
+      
       if (!user) {
         throw new Error("Invalid credentials");
       }
