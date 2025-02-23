@@ -38,6 +38,7 @@ export const Header = ({ className }) => {
         staffName: staffInfo.name,
         staffId: staffInfo.id,
         staffDepartment: staffInfo.department,
+        staffRole: staffInfo.role,
       });
     }
   }, [staffInfo, form]);

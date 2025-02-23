@@ -1,6 +1,16 @@
-import React from "react";
-import { Form, Input, DatePicker, Select, Modal, notification } from "antd";
+import React, { useEffect, useState } from "react";
+import {
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Modal,
+  notification,
+  message,
+} from "antd";
 import { projectNames, HEADER_TEXTS } from "@/constants/header";
+import { claimerService } from "../../services/claimer";
+import { useSearchParams } from "react-router-dom";
 
 const { RangePicker } = DatePicker;
 
@@ -8,30 +18,126 @@ export const ClaimModal = ({
   isModalVisible,
   setIsModalVisible,
   form,
-  staffInfo,
+  // staffInfo,
 }) => {
   const [api, contextHolder] = notification.useNotification();
+  const [dataSource, setDataSource] = useState([]);
 
-  const handleCreateClaim = () => {
-    form.validateFields().then((values) => {
-      console.log("Form values:", values);
+  const calculateTotalWorkingHours = (projectDuration) => {
+    if (!projectDuration || projectDuration.length !== 2) {
+      throw new Error("Invalid project duration range.");
+    }
+
+    const startDate = new Date(projectDuration[0]);
+    const endDate = new Date(projectDuration[1]);
+
+    const totalDays =
+      Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    return totalDays * 24;
+  };
+
+  const parseClaimValue = (value) => {
+    const [claimId, ...projectNameParts] = value.split(" ");
+    const projectName = projectNameParts.join(" ");
+    return { claimId, projectName };
+  };
+
+  async function handleCreateClaim() {
+    try {
+      let values = await form.validateFields();
+      console.log("Form values:", values.projectDuration);
+      console.log(
+        "Form - values:",
+        calculateTotalWorkingHours(values.projectDuration),
+      );
+
+      const { claimId, projectName } = parseClaimValue(values.projectName);
+
+      values = {
+        ...values,
+        status: "Pending",
+        totalWorking: calculateTotalWorkingHours(values.projectDuration),
+        projectName: projectName,
+      };
+
+      delete values.staffId;
+      delete values.staffRole;
+      delete values.staffDepartment;
+      console.log("values", values);
+
+      await claimerService.updateClaimById(claimId, values);
+      await fetchClaims();
       setIsModalVisible(false);
+
       api.success({
         message: "Success",
         description: "Create claim successfully!",
         duration: 3,
       });
-    });
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  const fetchClaims = async () => {
+    try {
+      let claims = await claimerService.getClaims();
+
+      claims = claims.filter((claim) => claim.status === "Draft");
+
+      setDataSource([...claims]);
+    } catch (error) {
+      message.error("Error fetching claims: " + error.message);
+    }
   };
 
-  const handleSaveDraft = () => {
-    setIsModalVisible(false);
-    api.info({
-      message: "Info",
-      description: "Draft saved successfully!",
-      duration: 3,
-    });
-  };
+  useEffect(() => {
+    fetchClaims();
+    console.log("OK Done");
+    const interval = setInterval(() => {
+      fetchClaims();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isModalVisible]);
+
+  async function handleSaveDraft() {
+    try {
+      let values = await form.validateFields();
+      console.log("Form values:", values.projectDuration);
+      console.log(
+        "Form - values:",
+        calculateTotalWorkingHours(values.projectDuration),
+      );
+
+      const { claimId, projectName } = parseClaimValue(values.projectName);
+
+      values = {
+        ...values,
+        status: "Draft",
+        totalWorking: calculateTotalWorkingHours(values.projectDuration),
+        projectName: projectName,
+      };
+
+      delete values.staffId;
+      delete values.staffRole;
+      delete values.staffDepartment;
+      console.log("values", values);
+
+      await claimerService.createClaim(values);
+      await fetchClaims();
+
+      api.info({
+        message: "Info",
+        description: "Draft saved successfully!",
+        duration: 3,
+      });
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
 
   return (
     <>
@@ -61,7 +167,7 @@ export const ClaimModal = ({
               ]}
             >
               <Input
-                value={staffInfo?.name || ""}
+                // value={staffInfo?.name || ""}
                 disabled
                 className="w-50 md:w-1/2"
                 style={{ color: "inherit" }}
@@ -75,7 +181,7 @@ export const ClaimModal = ({
               ]}
             >
               <Input
-                value={staffInfo?.id || ""}
+                // value={staffInfo?.id || ""}
                 disabled
                 className="w-full md:w-1/2"
                 style={{ color: "inherit" }}
@@ -89,12 +195,13 @@ export const ClaimModal = ({
               ]}
             >
               <Input
-                value={staffInfo?.department || ""}
+                // value={staffInfo?.department || ""}
                 disabled
                 className="w-full md:w-1/2"
                 style={{ color: "inherit" }}
               />
             </Form.Item>
+
             <Form.Item
               label="Project Name"
               name="projectName"
@@ -109,19 +216,28 @@ export const ClaimModal = ({
                 placeholder="Select a project"
                 className="w-full md:w-1/2"
               >
-                {projectNames.map((project) => (
-                  <Select.Option key={project.key} value={project.label}>
-                    {project.label}
+                {dataSource.map((claim) => (
+                  <Select.Option
+                    key={claim.id}
+                    value={claim.id + " " + claim.projectName}
+                  >
+                    {/* {claim.label} */}
+                    {claim.projectName}
                   </Select.Option>
                 ))}
               </Select>
             </Form.Item>
             <Form.Item
               label="Role"
-              name="role"
+              name="staffRole"
               rules={[{ required: true, message: "Please input the role!" }]}
             >
-              <Input placeholder="Enter role" className="w-full md:w-1/2" />
+              <Input
+                placeholder="Enter role"
+                className="w-full md:w-1/2"
+                style={{ color: "inherit" }}
+                disabled
+              />
             </Form.Item>
             <Form.Item
               label="Project Duration"
