@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Table, Tag, Button, Dropdown, Modal } from "antd";
 import { Eye, Printer, DollarSign, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { DUMMY_CLAIMS } from "@/constants/finance";
 import { STATUS_COLORS } from "@/constants/common";
+import { useReactToPrint } from "react-to-print";
 
 const FinancePage = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,9 @@ const FinancePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingClaim, setViewingClaim] = useState(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [printingClaim, setPrintingClaim] = useState(null);
+  const printComponentRef = useRef();
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -53,6 +57,20 @@ const FinancePage = () => {
     setIsViewModalOpen(true);
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => printComponentRef.current,
+    onAfterPrint: () => {
+      setIsPrintModalOpen(false);
+      setPrintingClaim(null);
+    },
+    removeAfterPrint: true,
+  });
+
+  const handlePrintClick = (record) => {
+    setPrintingClaim(record);
+    setIsPrintModalOpen(true);
+  };
+
   const getActionItems = (record) => {
     const baseActions = [
       {
@@ -65,7 +83,7 @@ const FinancePage = () => {
         key: "print",
         label: "Print",
         icon: <Printer className="h-4 w-4" />,
-        onClick: () => console.log("Print", record),
+        onClick: () => handlePrintClick(record),
       },
     ];
 
@@ -158,6 +176,87 @@ const FinancePage = () => {
     },
   ];
 
+  // Create a separate PrintableContent component
+  const PrintableContent = React.forwardRef((props, ref) => (
+    <div ref={ref} className="p-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-bold">Claim Receipt</h1>
+        <p className="text-muted-foreground">
+          Generated on: {new Date().toLocaleDateString()}
+        </p>
+      </div>
+
+      {printingClaim && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h3 className="mb-2 font-semibold">Claim Information</h3>
+              <table className="w-full">
+                <tbody>
+                  <tr>
+                    <td className="text-muted-foreground py-1">Claim ID:</td>
+                    <td className="font-medium">{printingClaim.id}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-muted-foreground py-1">Status:</td>
+                    <td>
+                      <Tag color={STATUS_COLORS[printingClaim.status]}>
+                        {printingClaim.status}
+                      </Tag>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="text-muted-foreground py-1">Total Hours:</td>
+                    <td className="font-medium">
+                      {printingClaim.totalWorking} hours
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <h3 className="mb-2 font-semibold">Staff Information</h3>
+              <table className="w-full">
+                <tbody>
+                  <tr>
+                    <td className="text-muted-foreground py-1">Name:</td>
+                    <td className="font-medium">{printingClaim.staffName}</td>
+                  </tr>
+                  <tr>
+                    <td className="text-muted-foreground py-1">Project:</td>
+                    <td className="font-medium">{printingClaim.projectName}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-2 font-semibold">Project Duration</h3>
+            <p>
+              From{" "}
+              <span className="font-medium">
+                {new Date(printingClaim.startDate).toDateString()}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {new Date(printingClaim.endDate).toDateString()}
+              </span>
+            </p>
+          </div>
+
+          <div className="mt-6 border-t pt-6">
+            <div className="flex items-center justify-between">
+              <p className="text-muted-foreground">Signature</p>
+              <div className="h-8 w-48 border-b border-dashed"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  ));
+
   return (
     <div className="flex flex-col gap-4 p-6">
       <Table
@@ -225,6 +324,31 @@ const FinancePage = () => {
           </div>
         )}
       </Modal>
+
+      <Modal
+        title="Print Preview"
+        open={isPrintModalOpen}
+        onCancel={() => {
+          setIsPrintModalOpen(false);
+          setPrintingClaim(null);
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => setIsPrintModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="print" type="primary" onClick={handlePrint}>
+            Print
+          </Button>,
+        ]}
+        width={800}
+      >
+        <PrintableContent ref={printComponentRef} />
+      </Modal>
+
+      {/* Hidden printable content */}
+      <div style={{ display: "none" }}>
+        <PrintableContent ref={printComponentRef} />
+      </div>
     </div>
   );
 };
