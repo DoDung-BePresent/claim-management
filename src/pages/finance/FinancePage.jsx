@@ -14,6 +14,11 @@ const FinancePage = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingClaim, setViewingClaim] = useState(null);
 
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
+
   useEffect(() => {
     if (statusParam) {
       setDataSource(
@@ -34,10 +39,13 @@ const FinancePage = () => {
   const handleOk = () => {
     if (selectedClaim) {
       setDataSource((prev) =>
-        prev.filter((item) => item.id !== selectedClaim.id),
+        prev.map((item) =>
+          item.id === selectedClaim.id ? { ...item, status: "Paid" } : item,
+        ),
       );
     }
     setIsModalOpen(false);
+    setSelectedClaim(null);
   };
 
   const handleView = (record) => {
@@ -83,7 +91,9 @@ const FinancePage = () => {
     {
       title: "Id",
       dataIndex: "id",
-      sorter: (a, b) => a.id - b.id,
+      render: (_text, _record, index) => {
+        return (pagination.current - 1) * pagination.pageSize + index + 1;
+      },
     },
     {
       title: "Status",
@@ -158,6 +168,7 @@ const FinancePage = () => {
           size: "default",
           pageSize: 10,
         }}
+        onChange={(pagination) => setPagination(pagination)}
       />
 
       <Modal
@@ -179,35 +190,35 @@ const FinancePage = () => {
         width={700}
       >
         {viewingClaim && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-500 text-sm">Claim ID</p>
+                <p className="text-muted-foreground">Claim ID</p>
                 <p className="font-medium">{viewingClaim.id}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-sm">Status</p>
+                <p className="text-muted-foreground">Staff Name</p>
+                <p className="font-medium">{viewingClaim.staffName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Project Name</p>
+                <p className="font-medium">{viewingClaim.projectName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Status</p>
                 <Tag color={STATUS_COLORS[viewingClaim.status]}>
                   {viewingClaim.status}
                 </Tag>
               </div>
               <div>
-                <p className="text-gray-500 text-sm">Staff Name</p>
-                <p className="font-medium">{viewingClaim.staffName}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Project Name</p>
-                <p className="font-medium">{viewingClaim.projectName}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-gray-500 text-sm">Project Duration</p>
+                <p className="text-muted-foreground">Project Duration</p>
                 <p className="font-medium">
                   From {new Date(viewingClaim.startDate).toDateString()} to{" "}
                   {new Date(viewingClaim.endDate).toDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-gray-500 text-sm">Total Working Hours</p>
+                <p className="text-muted-foreground">Total Working Hours</p>
                 <p className="font-medium">{viewingClaim.totalWorking} hours</p>
               </div>
             </div>

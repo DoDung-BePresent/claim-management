@@ -210,6 +210,10 @@ const ClaimApprovalPage = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
+                <p className="text-muted-foreground">Claim ID</p>
+                <p className="font-medium">{selectedClaim.id}</p>
+              </div>
+              <div>
                 <p className="text-muted-foreground">Staff Name</p>
                 <p className="font-medium">{selectedClaim.staffName}</p>
               </div>
@@ -224,16 +228,16 @@ const ClaimApprovalPage = () => {
                 </Tag>
               </div>
               <div>
-                <p className="text-muted-foreground">Total Working Hours</p>
-                <p className="font-medium">
-                  {selectedClaim.totalWorking} hours
-                </p>
-              </div>
-              <div className="col-span-2">
                 <p className="text-muted-foreground">Project Duration</p>
                 <p className="font-medium">
                   From {new Date(selectedClaim.startDate).toDateString()} to{" "}
                   {new Date(selectedClaim.endDate).toDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Total Working Hours</p>
+                <p className="font-medium">
+                  {selectedClaim.totalWorking} hours
                 </p>
               </div>
             </div>
