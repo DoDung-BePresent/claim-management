@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Dropdown } from "antd";
+import { Table, Tag, Button, Dropdown, Modal, Avatar } from "antd";
 import { DUMMY_CLAIMS } from "@/constants/approver";
 import { STATUS_COLORS } from "@/constants/common";
 import {
@@ -15,6 +15,8 @@ const ClaimApprovalPage = () => {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedClaim, setSelectedClaim] = useState(null);
 
   useEffect(() => {
     if (statusParam) {
@@ -36,36 +38,50 @@ const ClaimApprovalPage = () => {
     );
   };
 
-  const getActionItems = (record) => [
-    {
-      key: "view",
-      label: "View",
-      icon: <Eye className="h-4 w-4" />,
-      onClick: () => console.log("View", record),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "approve",
-      label: "Approve",
-      icon: <CheckCircle className="h-4 w-4" />,
-      onClick: () => handleStatusChange(record, "Approved"),
-    },
-    {
-      key: "reject",
-      label: "Reject",
-      icon: <XCircle className="h-4 w-4" />,
-      danger: true,
-      onClick: () => handleStatusChange(record, "Rejected"),
-    },
-    {
-      key: "return",
-      label: "Return",
-      icon: <RotateCcw className="h-4 w-4" />,
-      onClick: () => handleStatusChange(record, "Returned"),
-    },
-  ];
+  const handleViewClick = (record) => {
+    setSelectedClaim(record);
+    setIsModalVisible(true);
+  };
+
+  const getActionItems = (record) => {
+    const actions = [
+      {
+        key: "view",
+        label: "View",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: () => handleViewClick(record),
+      },
+    ];
+
+    if (record.status !== "Approved" && record.status !== "Rejected" && record.status !== "Returned") {
+      actions.push(
+        {
+          type: "divider",
+        },
+        {
+          key: "approve",
+          label: "Approve",
+          icon: <CheckCircle className="h-4 w-4" />,
+          onClick: () => handleStatusChange(record, "Approved"),
+        },
+        {
+          key: "reject",
+          label: "Reject",
+          icon: <XCircle className="h-4 w-4" />,
+          danger: true,
+          onClick: () => handleStatusChange(record, "Rejected"),
+        },
+        {
+          key: "return",
+          label: "Return",
+          icon: <RotateCcw className="h-4 w-4" />,
+          onClick: () => handleStatusChange(record, "Returned"),
+        }
+      );
+    }
+
+    return actions;
+  };
 
   const columns = [
     {
@@ -148,6 +164,23 @@ const ClaimApprovalPage = () => {
           pageSize: 10,
         }}
       />
+      <Modal
+        title="Claim Details"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+      >
+        {selectedClaim && (
+          <div className="flex flex-col items-center gap-4">
+            <Avatar size={64} src={selectedClaim.avatarUrl} />
+            <p><strong>Staff Name:</strong> {selectedClaim.staffName}</p>
+            <p><strong>Project Name:</strong> {selectedClaim.projectName}</p>
+            <p><strong>Project Duration:</strong> From {new Date(selectedClaim.startDate).toDateString()} to {new Date(selectedClaim.endDate).toDateString()}</p>
+            <p><strong>Total Working:</strong> {selectedClaim.totalWorking} hours</p>
+            <p><strong>Total Claim Amount:</strong> ${selectedClaim.totalClaimAmount}</p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
