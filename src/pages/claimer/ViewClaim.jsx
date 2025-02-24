@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Dropdown } from "antd";
+import { Table, Tag, Button, Dropdown, Modal, Form } from "antd";
 import { DUMMY_CLAIMS } from "@/constants/claimer";
 import { STATUS_COLORS } from "@/constants/common";
 import { Delete, Edit, Eye, Send, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { ClaimModal } from "@/components/claimer/ClaimModal";
+import { useAuth } from "@/contexts/AuthProvider";
+import dayjs from "dayjs";
 
 const ViewClaim = () => {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
+  const [selectedClaim, setSelectedClaim] = useState(null);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [claimToDelete, setClaimToDelete] = useState(null);
+  const [sendConfirmVisible, setSendConfirmVisible] = useState(false);
+  const [claimToSend, setClaimToSend] = useState(null);
+  const [form] = Form.useForm();
+  const { user } = useAuth();
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     if (statusParam) {
@@ -22,46 +39,98 @@ const ViewClaim = () => {
     }
   }, [statusParam]);
 
-  const handleDelete = (record) => {
-    setDataSource((prev) => prev.filter((item) => item.id !== record.id));
+  const handleView = (record) => {
+    setSelectedClaim(record);
+    setViewModalVisible(true);
   };
 
-  const getActionItems = (record) => [
-    {
-      key: "update",
-      label: "Update",
-      icon: <Edit className="h-4 w-4" />,
-      onClick: () => console.log("Update", record),
-    },
-    {
-      key: "view",
-      label: "View",
-      icon: <Eye className="h-4 w-4" />,
-      onClick: () => console.log("View", record),
-    },
-    {
-      key: "send",
-      label: "Send",
-      icon: <Send className="h-4 w-4" />,
-      onClick: () => console.log("Send", record),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "delete",
-      label: "Delete",
-      icon: <Delete className="h-4 w-4" />,
-      danger: true,
-      onClick: () => handleDelete(record),
-    },
-  ];
+  const handleDelete = (record) => {
+    setClaimToDelete(record);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDelete = () => {
+    setDataSource((prev) =>
+      prev.filter((item) => item.id !== claimToDelete.id),
+    );
+    setDeleteConfirmVisible(false);
+    setClaimToDelete(null);
+  };
+
+  const handleSend = (record) => {
+    setClaimToSend(record);
+    setSendConfirmVisible(true);
+  };
+
+  const confirmSend = () => {
+    setDataSource((prev) =>
+      prev.map((item) =>
+        item.id === claimToSend.id ? { ...item, status: "Pending" } : item,
+      ),
+    );
+    setSendConfirmVisible(false);
+    setClaimToSend(null);
+  };
+
+  const handleEdit = (record) => {
+    form.setFieldsValue({
+      staffName: user.name,
+      staffId: user.id,
+      staffDepartment: user.department,
+      projectName: record.projectName,
+      role: record.role,
+      projectDuration: [dayjs(record.startDate), dayjs(record.endDate)],
+    });
+    setSelectedClaim(record);
+    setIsEditModalVisible(true);
+  };
+
+  const getActionItems = (record) => {
+    const baseActions = [
+      {
+        key: "view",
+        label: "View",
+        icon: <Eye className="h-4 w-4" />,
+        onClick: () => handleView(record),
+      },
+    ];
+
+    if (record.status === "Draft") {
+      return [
+        ...baseActions,
+        { type: "divider" },
+        {
+          key: "edit",
+          label: "Edit",
+          icon: <Edit className="h-4 w-4" />,
+          onClick: () => handleEdit(record),
+        },
+        {
+          key: "send",
+          label: "Send",
+          icon: <Send className="h-4 w-4" />,
+          onClick: () => handleSend(record),
+        },
+        {
+          key: "delete",
+          label: "Delete",
+          icon: <Delete className="h-4 w-4" />,
+          danger: true,
+          onClick: () => handleDelete(record),
+        },
+      ];
+    }
+
+    return baseActions;
+  };
 
   const columns = [
     {
       title: "Id",
       dataIndex: "id",
-      sorter: (a, b) => a.id - b.id,
+      render: (_text, _record, index) => {
+        return (pagination.current - 1) * pagination.pageSize + index + 1;
+      },
     },
     {
       title: "Status",
@@ -138,7 +207,121 @@ const ViewClaim = () => {
           size: "default",
           pageSize: 10,
         }}
+        onChange={(pagination) => setPagination(pagination)}
       />
+
+      {/* View Modal */}
+      <Modal
+        title="View Claim Details"
+        open={viewModalVisible}
+        onCancel={() => {
+          setViewModalVisible(false);
+          setSelectedClaim(null);
+        }}
+        footer={null}
+        width={700}
+      >
+        {selectedClaim && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-muted-foreground">Claim ID</p>
+                <p className="font-medium">{selectedClaim.id}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Staff Name</p>
+                <p className="font-medium">{selectedClaim.staffName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Project Name</p>
+                <p className="font-medium">{selectedClaim.projectName}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Status</p>
+                <Tag color={STATUS_COLORS[selectedClaim.status]}>
+                  {selectedClaim.status}
+                </Tag>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Project Duration</p>
+                <p className="font-medium">
+                  From {new Date(selectedClaim.startDate).toDateString()} to{" "}
+                  {new Date(selectedClaim.endDate).toDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Total Working Hours</p>
+                <p className="font-medium">
+                  {selectedClaim.totalWorking} hours
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Edit Modal */}
+      <ClaimModal
+        isModalVisible={isEditModalVisible}
+        setIsModalVisible={setIsEditModalVisible}
+        form={form}
+        staffInfo={user}
+        isEditing={true}
+        onFinish={(values) => {
+          const { projectDuration, ...rest } = values;
+          const [startDate, endDate] = projectDuration;
+
+          setDataSource((prev) =>
+            prev.map((item) =>
+              item.id === selectedClaim.id
+                ? {
+                    ...item,
+                    ...rest,
+                    startDate: startDate.toISOString(),
+                    endDate: endDate.toISOString(),
+                  }
+                : item,
+            ),
+          );
+          setIsEditModalVisible(false);
+          setSelectedClaim(null);
+          form.resetFields();
+        }}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Confirm Delete"
+        open={deleteConfirmVisible}
+        onOk={confirmDelete}
+        onCancel={() => {
+          setDeleteConfirmVisible(false);
+          setClaimToDelete(null);
+        }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete claim #{claimToDelete?.id}?</p>
+        <p className="text-muted-foreground">This action cannot be undone.</p>
+      </Modal>
+
+      {/* Send Confirmation Modal */}
+      <Modal
+        title="Confirm Send"
+        open={sendConfirmVisible}
+        onOk={confirmSend}
+        onCancel={() => {
+          setSendConfirmVisible(false);
+          setClaimToSend(null);
+        }}
+        okText="Send"
+        cancelText="Cancel"
+      >
+        <p>
+          Are you sure you want to send claim #{claimToSend?.id} for approval?
+        </p>
+      </Modal>
     </div>
   );
 };

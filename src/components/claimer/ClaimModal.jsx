@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Input, DatePicker, Select, Modal, notification } from "antd";
-import { projectNames, HEADER_TEXTS } from "@/constants/header";
+import { HEADER_TEXTS } from "@/constants/header";
+import { JOD_RANKS } from "@/constants/common";
 
 const { RangePicker } = DatePicker;
 
@@ -9,16 +10,22 @@ export const ClaimModal = ({
   setIsModalVisible,
   form,
   staffInfo,
+  isEditing = false,
+  onFinish,
 }) => {
   const [api, contextHolder] = notification.useNotification();
 
   const handleCreateClaim = () => {
     form.validateFields().then((values) => {
-      console.log("Form values:", values);
-      setIsModalVisible(false);
+      if (isEditing) {
+        onFinish?.(values);
+      } else {
+        console.log("Form values:", values);
+        setIsModalVisible(false);
+      }
       api.success({
         message: "Success",
-        description: "Create claim successfully!",
+        description: `${isEditing ? "Edit" : "Create"} claim successfully!`,
         duration: 3,
       });
     });
@@ -37,15 +44,20 @@ export const ClaimModal = ({
     <>
       {contextHolder}
       <Modal
-        title={HEADER_TEXTS.createClaimTitle}
+        title={isEditing ? "Edit Claim" : HEADER_TEXTS.createClaimTitle}
         open={isModalVisible}
         onOk={handleCreateClaim}
-        onCancel={() => setIsModalVisible(false)}
-        okText={HEADER_TEXTS.createClaimButton}
-        cancelText={HEADER_TEXTS.saveDraftButton}
+        onCancel={() => {
+          setIsModalVisible(false);
+          form.resetFields();
+        }}
+        okText={isEditing ? "Save Changes" : HEADER_TEXTS.createClaimButton}
+        cancelText={isEditing ? "Cancel" : HEADER_TEXTS.saveDraftButton}
         style={{ top: 40 }}
         cancelButtonProps={{
-          onClick: handleSaveDraft,
+          onClick: isEditing 
+            ? () => setIsModalVisible(false)
+            : handleSaveDraft,
         }}
       >
         <p className="mb-4 text-gray-500">
@@ -109,19 +121,25 @@ export const ClaimModal = ({
                 placeholder="Select a project"
                 className="w-full md:w-1/2"
               >
-                {projectNames.map((project) => (
-                  <Select.Option key={project.key} value={project.label}>
-                    {project.label}
-                  </Select.Option>
-                ))}
+                <Select.Option value="E-Commerce">E-Commerce</Select.Option>
+                <Select.Option value="Banking App">Banking App</Select.Option>
+                <Select.Option value="Healthcare System">
+                  Healthcare System
+                </Select.Option>
               </Select>
             </Form.Item>
             <Form.Item
               label="Role"
               name="role"
-              rules={[{ required: true, message: "Please input the role!" }]}
+              rules={[{ required: true, message: "Please select the role!" }]}
             >
-              <Input placeholder="Enter role" className="w-full md:w-1/2" />
+              <Select placeholder="Select the role" className="w-full md:w-1/2">
+                {JOD_RANKS.map((rank) => (
+                  <Select.Option key={rank.value} value={rank.value}>
+                    {rank.text}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item
               label="Project Duration"

@@ -7,6 +7,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-01-01",
     endDate: "2025-02-20",
     totalWorking: 120,
+    job: "Senior Developer",
   },
   {
     id: 2,
@@ -16,6 +17,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-02-10",
     endDate: "2025-03-15",
     totalWorking: 100,
+    job: "Fullstack Developer",
   },
   {
     id: 3,
@@ -25,6 +27,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-03-01",
     endDate: "2025-04-10",
     totalWorking: 140,
+    job: "Lead Engineer",
   },
   {
     id: 4,
@@ -34,6 +37,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-01-20",
     endDate: "2025-02-28",
     totalWorking: 90,
+    job: "UI/UX Designer",
   },
   {
     id: 5,
@@ -43,6 +47,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-04-05",
     endDate: "2025-05-15",
     totalWorking: 130,
+    job: "Backend Developer",
   },
   {
     id: 6,
@@ -52,6 +57,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-05-01",
     endDate: "2025-06-20",
     totalWorking: 110,
+    job: "UI/UX Designer",
   },
   {
     id: 7,
@@ -61,6 +67,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-02-15",
     endDate: "2025-03-30",
     totalWorking: 115,
+    job: "Lead Engineer",
   },
   {
     id: 8,
@@ -70,6 +77,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-06-01",
     endDate: "2025-07-20",
     totalWorking: 125,
+    job: "Senior Developer",
   },
   {
     id: 9,
@@ -79,6 +87,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-07-10",
     endDate: "2025-08-25",
     totalWorking: 135,
+    job: "Fullstack Developer",
   },
   {
     id: 10,
@@ -88,6 +97,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-08-05",
     endDate: "2025-09-15",
     totalWorking: 120,
+    job: "Senior Developer",
   },
   {
     id: 11,
@@ -97,6 +107,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-09-01",
     endDate: "2025-10-10",
     totalWorking: 140,
+    job: "UI/UX Designer",
   },
   {
     id: 12,
@@ -106,6 +117,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-10-05",
     endDate: "2025-11-20",
     totalWorking: 130,
+    job: "Lead Engineer",
   },
   {
     id: 13,
@@ -115,6 +127,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-11-01",
     endDate: "2025-12-15",
     totalWorking: 110,
+    job: "Lead Engineer",
   },
   {
     id: 14,
@@ -124,6 +137,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2025-12-01",
     endDate: "2026-01-20",
     totalWorking: 120,
+    job: "UI/UX Designer",
   },
   {
     id: 15,
@@ -133,6 +147,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-01-05",
     endDate: "2026-02-15",
     totalWorking: 125,
+    job: "Backend Developer",
   },
   {
     id: 16,
@@ -142,6 +157,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-02-10",
     endDate: "2026-03-25",
     totalWorking: 130,
+    job: "Senior Developer",
   },
   {
     id: 17,
@@ -151,6 +167,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-03-05",
     endDate: "2026-04-15",
     totalWorking: 110,
+    job: "UI/UX Designer",
   },
   {
     id: 18,
@@ -160,6 +177,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-04-01",
     endDate: "2026-05-20",
     totalWorking: 140,
+    job: "Backend Developer",
   },
   {
     id: 19,
@@ -169,6 +187,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-05-10",
     endDate: "2026-06-25",
     totalWorking: 115,
+    job: "Senior Developer",
   },
   {
     id: 20,
@@ -178,6 +197,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-06-05",
     endDate: "2026-07-15",
     totalWorking: 130,
+    job: "UI/UX Designer",
   },
   {
     id: 21,
@@ -187,6 +207,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-07-01",
     endDate: "2026-08-20",
     totalWorking: 125,
+    job: "Backend Developer",
   },
   {
     id: 22,
@@ -196,6 +217,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-08-05",
     endDate: "2026-09-15",
     totalWorking: 120,
+    job: "UI/UX Designer",
   },
   {
     id: 23,
@@ -205,6 +227,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-09-10",
     endDate: "2026-10-25",
     totalWorking: 110,
+    job: "Backend Developer",
   },
   {
     id: 24,
@@ -214,6 +237,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-10-05",
     endDate: "2026-11-20",
     totalWorking: 140,
+    job: "Backend Developer",
   },
   {
     id: 25,
@@ -223,6 +247,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-11-01",
     endDate: "2026-12-15",
     totalWorking: 135,
+    job: "UI/UX Designer",
   },
   {
     id: 26,
@@ -232,6 +257,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2026-12-01",
     endDate: "2027-01-20",
     totalWorking: 110,
+    job: "Backend Developer",
   },
   {
     id: 27,
@@ -241,6 +267,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2027-01-05",
     endDate: "2027-02-15",
     totalWorking: 120,
+    job: "Backend Developer",
   },
   {
     id: 28,
@@ -250,6 +277,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2027-02-10",
     endDate: "2027-03-25",
     totalWorking: 130,
+    job: "UI/UX Designer",
   },
   {
     id: 29,
@@ -259,6 +287,7 @@ export const DUMMY_CLAIMS = [
     startDate: "2027-03-05",
     endDate: "2027-04-15",
     totalWorking: 125,
+    job: "Backend Developer",
   },
   {
     id: 30,
@@ -268,5 +297,6 @@ export const DUMMY_CLAIMS = [
     startDate: "2027-04-01",
     endDate: "2027-05-20",
     totalWorking: 140,
+    job: "UI/UX Designer",
   },
 ];

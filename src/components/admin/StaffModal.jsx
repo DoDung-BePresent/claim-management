@@ -1,6 +1,6 @@
 import React from "react";
-import { Modal, Form, Input, Select, Button, InputNumber } from "antd";
-import { JOD_RANKS, DEPARTMENT } from "../../constants/admin";
+import { Modal, Form, Select, Button, InputNumber } from "antd";
+import { JOD_RANKS, DEPARTMENTS } from "@/constants/common";
 
 const StaffModal = ({
   isModalVisible,
@@ -36,7 +36,7 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please select department!" }]}
           >
             <Select placeholder="Select department">
-              {DEPARTMENT.map((dept) => (
+              {DEPARTMENTS.map((dept) => (
                 <Select.Option key={dept.value} value={dept.value}>
                   {dept.text}
                 </Select.Option>
