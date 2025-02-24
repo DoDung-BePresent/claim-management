@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Table, Button, Dropdown, Form, Modal } from "antd";
 import { Edit, Trash, MoreHorizontal, Plus } from "lucide-react";
-import { DUMMY_STAFFS, DEPARTMENT, JOD_RANKS } from "@/constants/admin";
+import { DUMMY_STAFFS } from "@/constants/admin";
+import { DEPARTMENTS, JOD_RANKS } from "@/constants/common";
 import StaffModal from "@/components/admin/StaffModal";
 
 const StaffManagement = () => {
@@ -106,7 +107,7 @@ const StaffManagement = () => {
     {
       title: "Department",
       dataIndex: "department",
-      filters: DEPARTMENT,
+      filters: DEPARTMENTS,
       onFilter: (value, record) => record.department === value,
     },
     {

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
 import { HEADER_LINKS, HEADER_TEXTS } from "@/constants/header";
 import { Avatar, Badge, Button, Dropdown, Form } from "antd";
 import { ClaimModal } from "@/components/claimer/ClaimModal";
-import { claimerService } from "@/services/claimer";
 
 export const Header = ({ className }) => {
   const navigate = useNavigate();
@@ -15,32 +14,22 @@ export const Header = ({ className }) => {
   const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [staffInfo, setStaffInfo] = useState(null);
 
   const items = menuLinks.dropdown.menu.map((item) => ({
     key: item.key,
     label: <Link to={item.to}>{item.label}</Link>,
   }));
 
+  // Sử dụng useEffect để set form values từ user data
   useEffect(() => {
-    if (user?.id) {
-      const getUser = async () => {
-        const staff = await claimerService.getUserInfo(user?.id);
-        setStaffInfo(staff);
-      };
-      getUser();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (staffInfo) {
+    if (user) {
       form.setFieldsValue({
-        staffName: staffInfo.name,
-        staffId: staffInfo.id,
-        staffDepartment: staffInfo.department,
+        staffName: user.name,
+        staffId: user.id,
+        staffDepartment: user.department,
       });
     }
-  }, [staffInfo, form]);
+  }, [user, form]);
 
   const handleLogout = () => {
     setUser(null);
@@ -156,7 +145,7 @@ export const Header = ({ className }) => {
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         form={form}
-        staffInfo={staffInfo}
+        staffInfo={user} // Truyền user trực tiếp vào thay vì staffInfo
       />
     </nav>
   );
