@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthProvider";
 const SignIn = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,7 +16,6 @@ const SignIn = () => {
     try {
       setIsLoading(true);
       const user = await authService.login(values);
-      setUser(user);
       messageApi.success("Login successful!");
       navigate("/");
     } catch (error) {
@@ -73,7 +71,7 @@ const SignIn = () => {
             </Link>
           </div>
           <Button
-            isLoading={isLoading}
+            loading={isLoading}
             htmlType="submit"
             type="primary"
             className="mt-5 w-full"

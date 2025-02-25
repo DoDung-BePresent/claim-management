@@ -29,6 +29,10 @@ createRoot(document.getElementById("root")).render(
           Select: {
             optionSelectedBg: "hsl(240 5% 96%)",
           },
+          Dropdown: {
+            controlItemBgActive: "hsl(240 5% 96%)",
+            controlItemBgActiveHover: "hsl(240 4.8% 85.9%)",
+          },
         },
       }}
     >

@@ -1,36 +1,39 @@
-import React, { useState, useEffect } from "react";
-import { Table, Button, Dropdown, Form } from "antd";
+import React, { useState } from "react";
+import { Table, Button, Dropdown, Form, Modal } from "antd"; // Add Modal
 import { Edit, Trash, MoreHorizontal, Plus } from "lucide-react";
+import { DUMMY_PROJECTS } from "@/constants/admin";
 import dayjs from "dayjs";
 import ProjectModal from "@/components/admin/ProjectModal";
-import { fetchProjects, deleteProject } from "@/services/API/apiService";
 
 const ProjectManagement = () => {
   const [form] = Form.useForm();
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(DUMMY_PROJECTS);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
-  const loadProjects = async () => {
-    try {
-      const projects = await fetchProjects();
-      setDataSource(projects);
-    } catch (error) {
-
-    }
+  const handleDelete = (record) => {
+    setProjectToDelete(record);
+    setDeleteConfirmVisible(true);
   };
 
-  const handleDelete = async (record) => {
-    try {
-      await deleteProject(record.id);
-      loadProjects();
-    } catch (error) {
+  const confirmDelete = () => {
+    setDataSource((prev) =>
+      prev.filter((item) => item.id !== projectToDelete.id),
+    );
+    setDeleteConfirmVisible(false);
+    setProjectToDelete(null);
+  };
 
-    }
+  const cancelDelete = () => {
+    setDeleteConfirmVisible(false);
+    setProjectToDelete(null);
   };
 
   const showModal = (record = null) => {
@@ -46,7 +49,7 @@ const ProjectManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = (values) => {
     const [startDate, endDate] = values.projectDuration;
     const formattedValues = {
       ...values,
@@ -55,18 +58,26 @@ const ProjectManagement = () => {
     };
     delete formattedValues.projectDuration;
 
-    try {
-      if (editingProject) {
-        await updateProject(editingProject.id, formattedValues);
-      } else {
-        await createProject(formattedValues);
-      }
-      loadProjects();
-      setIsModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-    
+    if (editingProject) {
+      setDataSource((prev) =>
+        prev.map((item) =>
+          item.id === editingProject.id
+            ? { ...item, ...formattedValues }
+            : item,
+        ),
+      );
+    } else {
+      setDataSource((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          key: prev.length + 1,
+          ...formattedValues,
+        },
+      ]);
     }
+    setIsModalVisible(false);
+    form.resetFields();
   };
 
   const handleCancel = () => {
@@ -99,7 +110,10 @@ const ProjectManagement = () => {
       title: "Id",
       dataIndex: "id",
       fixed: "left",
-      sorter: (a, b) => a.id - b.id,
+      width: 100,
+      render: (_text, _record, index) => {
+        return (pagination.current - 1) * pagination.pageSize + index + 1;
+      },
     },
     {
       key: "Project Name",
@@ -141,31 +155,31 @@ const ProjectManagement = () => {
       key: "Technical Lead",
       title: "Technical Lead",
       dataIndex: "technicalLead",
-      render: (technicalLead) => Array.isArray(technicalLead) ? technicalLead.join(", ") : technicalLead,
+      render: (technicalLead) => technicalLead.join(", "),
     },
     {
       key: "BA",
       title: "BA",
       dataIndex: "ba",
-      render: (ba) => Array.isArray(ba) ? ba.join(", ") : ba,
+      render: (ba) => ba.join(", "),
     },
     {
       key: "Developers",
       title: "Developers",
       dataIndex: "developers",
-      render: (developers) => Array.isArray(developers) ? developers.join(", ") : developers,
+      render: (developers) => developers.join(", "),
     },
     {
       key: "Testers",
       title: "Testers",
       dataIndex: "testers",
-      render: (testers) => Array.isArray(testers) ? testers.join(", ") : testers,
+      render: (testers) => testers.join(", "),
     },
     {
       key: "Technical Consultancy",
       title: "Technical Consultancy",
       dataIndex: "technicalConsultancy",
-      render: (technicalConsultancy) => Array.isArray(technicalConsultancy) ? technicalConsultancy.join(", ") : technicalConsultancy,
+      render: (technicalConsultancy) => technicalConsultancy.join(", "),
     },
     {
       key: "Actions",
@@ -188,15 +202,6 @@ const ProjectManagement = () => {
     },
   ];
 
-  // Extract unique options from the dataSource
-  const pmOptions = [...new Set(dataSource.map((item) => item.pm))];
-  const qaOptions = [...new Set(dataSource.map((item) => item.qa))];
-  const technicalLeadOptions = [...new Set(dataSource.map((item) => item.technicalLead))];
-  const baOptions = [...new Set(dataSource.map((item) => item.ba))];
-  const developerOptions = [...new Set(dataSource.map((item) => item.developers))];
-  const testerOptions = [...new Set(dataSource.map((item) => item.testers))];
-  const consultancyOptions = [...new Set(dataSource.map((item) => item.technicalConsultancy))];
-
   return (
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-end">
@@ -213,12 +218,12 @@ const ProjectManagement = () => {
         size="small"
         columns={columns}
         dataSource={dataSource}
-        rowKey="id" 
         pagination={{
           pageSize: 10,
           size: "default",
         }}
         scroll={{ x: "max-content" }}
+        onChange={(pagination) => setPagination(pagination)}
       />
 
       <ProjectModal
@@ -227,15 +232,23 @@ const ProjectManagement = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         form={form}
-        loadProjects={loadProjects} 
-        pmOptions={pmOptions}
-        qaOptions={qaOptions}
-        technicalLeadOptions={technicalLeadOptions}
-        baOptions={baOptions}
-        developerOptions={developerOptions}
-        testerOptions={testerOptions}
-        consultancyOptions={consultancyOptions}
       />
+
+      <Modal
+        title="Confirm Delete"
+        open={deleteConfirmVisible}
+        onOk={confirmDelete}
+        onCancel={cancelDelete}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>
+          Are you sure you want to delete project "
+          {projectToDelete?.projectName}"?
+        </p>
+        <p className="text-muted-foreground">This action cannot be undone.</p>
+      </Modal>
     </div>
   );
 };

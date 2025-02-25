@@ -1,6 +1,6 @@
 import React from "react";
-import { Modal, Form, Input, Select, Button, InputNumber } from "antd";
-import { createStaff, updateStaff } from "@/services/API/apiService";
+import { Modal, Form, Select, Button, InputNumber } from "antd";
+import { JOD_RANKS, DEPARTMENTS } from "@/constants/common";
 
 const StaffModal = ({
   isModalVisible,
@@ -8,35 +8,16 @@ const StaffModal = ({
   onCancel,
   onSubmit,
   form,
-  loadStaff, 
-  staffOptions,
-  departmentOptions,
 }) => {
-  const handleFinish = async (values) => {
-    try {
-      if (editingStaff) {
-        await updateStaff(editingStaff.id, values);
-      } else {
-        await createStaff(values);
-      }
-      loadStaff(); 
-      onCancel(); 
-      form.resetFields(); 
-    } catch (error) {
-
-    }
-  };
-
   return (
     <Modal
       title={editingStaff ? "Edit Staff" : "Create New Staff"}
       open={isModalVisible}
       onCancel={onCancel}
-      style={{ top: 40 }}
       footer={null}
       width={600}
     >
-      <Form form={form} layout="vertical" onFinish={handleFinish} className="pt-4">
+      <Form form={form} layout="vertical" onFinish={onSubmit} className="pt-4">
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
             label="Staff Name"
@@ -44,11 +25,8 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please select staff name!" }]}
           >
             <Select placeholder="Select staff">
-              {staffOptions.map((staff) => (
-                <Select.Option key={staff} value={staff}>
-                  {staff}
-                </Select.Option>
-              ))}
+              <Select.Option value="John Doe">John Doe</Select.Option>
+              <Select.Option value="Jane Smith">Jane Smith</Select.Option>
             </Select>
           </Form.Item>
 
@@ -58,9 +36,9 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please select department!" }]}
           >
             <Select placeholder="Select department">
-              {departmentOptions.map((department) => (
-                <Select.Option key={department} value={department}>
-                  {department}
+              {DEPARTMENTS.map((dept) => (
+                <Select.Option key={dept.value} value={dept.value}>
+                  {dept.text}
                 </Select.Option>
               ))}
             </Select>
@@ -71,7 +49,13 @@ const StaffModal = ({
             name="jobRank"
             rules={[{ required: true, message: "Please input job rank!" }]}
           >
-            <Input placeholder="Enter job rank" />
+            <Select placeholder="Select job rank">
+              {JOD_RANKS.map((rank) => (
+                <Select.Option key={rank.value} value={rank.value}>
+                  {rank.text}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -80,8 +64,8 @@ const StaffModal = ({
             rules={[{ required: true, message: "Please input salary!" }]}
           >
             <InputNumber
-              style={{ width: "100%" }}
               min={0}
+              style={{ width: "100%" }}
               type="number"
               placeholder="Enter salary"
             />

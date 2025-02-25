@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Bell, Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { Logo } from "@/components/common/Logo";
 import { HEADER_LINKS, HEADER_TEXTS } from "@/constants/header";
 import { Avatar, Badge, Button, Dropdown, Form } from "antd";
 import { ClaimModal } from "@/components/claimer/ClaimModal";
-import { claimerService } from "@/services/claimer";
+import { authService } from "@/services/auth";
 
 export const Header = ({ className }) => {
-  const navigate = useNavigate();
-  const { user, setUser } = useAuth();
-  const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [staffInfo, setStaffInfo] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
 
   const items = menuLinks.dropdown.menu.map((item) => ({
     key: item.key,
@@ -23,27 +23,17 @@ export const Header = ({ className }) => {
   }));
 
   useEffect(() => {
-    if (user?.id) {
-      const getUser = async () => {
-        const staff = await claimerService.getUserInfo(user?.id);
-        setStaffInfo(staff);
-      };
-      getUser();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (staffInfo) {
+    if (user && isModalVisible) {
       form.setFieldsValue({
-        staffName: staffInfo.name,
-        staffId: staffInfo.id,
-        staffDepartment: staffInfo.department,
+        staffName: user.name,
+        staffId: user.uid,
+        staffDepartment: user.department,
       });
     }
-  }, [staffInfo, form]);
+  }, [user, form, isModalVisible]);
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async () => {
+    await authService.logout();
     navigate("/sign-in");
   };
 
@@ -156,7 +146,7 @@ export const Header = ({ className }) => {
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         form={form}
-        staffInfo={staffInfo}
+        staffInfo={user}
       />
     </nav>
   );
