@@ -1,51 +1,56 @@
-import API from "@/services/axiosClient"
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import { auth, db } from "@/firebase/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 export const authService = {
-  async login(credentials) {
+  async login({ email, password }) {
     try {
-      const { data } = await API.get("/users", {
-        params: {
-          email: credentials.email,
-        },
-      });
-
-      const user = data.find(
-        (user) =>
-          user.email === credentials.email &&
-          user.password === credentials.password,
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
       );
-
-      if (!user) {
-        throw new Error("Invalid credentials");
-      }
-
-      return user;
+      return userCredential.user;
     } catch (error) {
-      throw new Error("Invalid credentials");
+      throw new Error("Login failed. Please try again.");
     }
   },
-
-  async register(userData) {
+  async register({ email, password, name }) {
     try {
-      const { data } = await API.get("/users");
-      const existingUser = data.find((user) => user.email === userData.email);
-
-      if (existingUser) {
-        throw new Error("Email already exists");
-      }
-
-      const response = await API.post("/users", {
-        ...userData,
-        avatar: "",
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        name,
+        email,
         role: "claimer",
+        avatar: "",
+        department: "Not assigned",
       });
 
-      return response.data;
+      return {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        name,
+        role: "claimer",
+        avatar: "",
+        department: "Not assigned",
+      };
     } catch (error) {
-      if (error.message === "Email already exists") {
-        throw error;
-      }
       throw new Error("Registration failed. Please try again.");
+    }
+  },
+  async logout() {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      throw new Error("Logout failed. Please try again.");
     }
   },
 };
