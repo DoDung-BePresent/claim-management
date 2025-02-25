@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Tag, Button, Dropdown, Modal } from "antd";
 import { Eye, Printer, DollarSign, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { DUMMY_CLAIMS } from "@/constants/finance";
 import { STATUS_COLORS } from "@/constants/common";
-import { useReactToPrint } from "react-to-print";
 
 const FinancePage = () => {
   const [searchParams] = useSearchParams();
@@ -12,11 +11,8 @@ const FinancePage = () => {
   const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewingClaim, setViewingClaim] = useState(null);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [printingClaim, setPrintingClaim] = useState(null);
-  const printComponentRef = useRef();
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -52,33 +48,99 @@ const FinancePage = () => {
     setSelectedClaim(null);
   };
 
-  const handleView = (record) => {
-    setViewingClaim(record);
-    setIsViewModalOpen(true);
-  };
-
-  const handlePrint = useReactToPrint({
-    content: () => printComponentRef.current,
-    onAfterPrint: () => {
-      setIsPrintModalOpen(false);
-      setPrintingClaim(null);
-    },
-    removeAfterPrint: true,
-  });
-
   const handlePrintClick = (record) => {
     setPrintingClaim(record);
     setIsPrintModalOpen(true);
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Claim Receipt - ${printingClaim.id}</title>
+          <meta charset="UTF-8">
+          <link rel="stylesheet" href="/src/index.css">
+        </head>
+        <body>
+          <div class="print-page">
+            <div class="print-header">
+              <h1>Claim Receipt</h1>
+              <p>Generated on: ${new Date().toLocaleDateString()}</p>
+            </div>
+
+            <div class="print-grid">
+              <div class="print-section">
+                <h3>Claim Information</h3>
+                <p>
+                  <span class="print-label">Claim ID:</span>
+                  <span class="print-value">${printingClaim.id}</span>
+                </p>
+                <p>
+                  <span class="print-label">Status:</span>
+                  <span class="print-value" style="color: ${STATUS_COLORS[printingClaim.status]}">
+                    ${printingClaim.status}
+                  </span>
+                </p>
+                <p>
+                  <span class="print-label">Total Hours:</span>
+                  <span class="print-value">${printingClaim.totalWorking} hours</span>
+                </p>
+              </div>
+
+              <div class="print-section">
+                <h3>Staff Information</h3>
+                <p>
+                  <span class="print-label">Name:</span>
+                  <span class="print-value">${printingClaim.staffName}</span>
+                </p>
+                <p>
+                  <span class="print-label">Project:</span>
+                  <span class="print-value">${printingClaim.projectName}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="print-section">
+              <h3>Project Duration</h3>
+              <p>
+                <span class="print-label">Period:</span>
+                <span class="print-value">
+                  ${new Date(printingClaim.startDate).toLocaleDateString()} to 
+                  ${new Date(printingClaim.endDate).toLocaleDateString()}
+                </span>
+              </p>
+            </div>
+
+            <div class="print-signature">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="print-label">Signature</span>
+                <div style="width: 200px; border-bottom: 1px dashed #000;"></div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      requestAnimationFrame(() => {
+        printWindow.print();
+        printWindow.onafterprint = () => {
+          printWindow.close();
+          setIsPrintModalOpen(false);
+          setPrintingClaim(null);
+        };
+      });
+    };
+  };
+
   const getActionItems = (record) => {
     const baseActions = [
-      {
-        key: "view",
-        label: "View",
-        icon: <Eye className="h-4 w-4" />,
-        onClick: () => handleView(record),
-      },
       {
         key: "print",
         label: "Print",
@@ -176,9 +238,8 @@ const FinancePage = () => {
     },
   ];
 
-  // Create a separate PrintableContent component
-  const PrintableContent = React.forwardRef((props, ref) => (
-    <div ref={ref} className="p-8">
+  const PrintComponent = () => (
+    <div className="p-8">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold">Claim Receipt</h1>
         <p className="text-muted-foreground">
@@ -207,9 +268,7 @@ const FinancePage = () => {
                   </tr>
                   <tr>
                     <td className="text-muted-foreground py-1">Total Hours:</td>
-                    <td className="font-medium">
-                      {printingClaim.totalWorking} hours
-                    </td>
+                    <td className="font-medium">{printingClaim.totalWorking} hours</td>
                   </tr>
                 </tbody>
               </table>
@@ -255,7 +314,7 @@ const FinancePage = () => {
         </div>
       )}
     </div>
-  ));
+  );
 
   return (
     <div className="flex flex-col gap-4 p-6">
@@ -282,50 +341,6 @@ const FinancePage = () => {
       </Modal>
 
       <Modal
-        title={<h2 className="text-xl font-semibold">Claim Details</h2>}
-        open={isViewModalOpen}
-        onCancel={() => setIsViewModalOpen(false)}
-        footer={null}
-        width={700}
-      >
-        {viewingClaim && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-muted-foreground">Claim ID</p>
-                <p className="font-medium">{viewingClaim.id}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Staff Name</p>
-                <p className="font-medium">{viewingClaim.staffName}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Project Name</p>
-                <p className="font-medium">{viewingClaim.projectName}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Status</p>
-                <Tag color={STATUS_COLORS[viewingClaim.status]}>
-                  {viewingClaim.status}
-                </Tag>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Project Duration</p>
-                <p className="font-medium">
-                  From {new Date(viewingClaim.startDate).toDateString()} to{" "}
-                  {new Date(viewingClaim.endDate).toDateString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Total Working Hours</p>
-                <p className="font-medium">{viewingClaim.totalWorking} hours</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <Modal
         title="Print Preview"
         open={isPrintModalOpen}
         onCancel={() => {
@@ -336,19 +351,20 @@ const FinancePage = () => {
           <Button key="cancel" onClick={() => setIsPrintModalOpen(false)}>
             Cancel
           </Button>,
-          <Button key="print" type="primary" onClick={handlePrint}>
+          <Button 
+            key="print" 
+            type="primary" 
+            onClick={handlePrint}
+            disabled={!printingClaim}
+          >
             Print
           </Button>,
         ]}
         width={800}
       >
-        <PrintableContent ref={printComponentRef} />
+        <PrintComponent />
       </Modal>
 
-      {/* Hidden printable content */}
-      <div style={{ display: "none" }}>
-        <PrintableContent ref={printComponentRef} />
-      </div>
     </div>
   );
 };
