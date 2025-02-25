@@ -7,32 +7,33 @@ import { Logo } from "@/components/common/Logo";
 import { HEADER_LINKS, HEADER_TEXTS } from "@/constants/header";
 import { Avatar, Badge, Button, Dropdown, Form } from "antd";
 import { ClaimModal } from "@/components/claimer/ClaimModal";
+import { authService } from "@/services/auth";
 
 export const Header = ({ className }) => {
-  const navigate = useNavigate();
-  const { user, setUser } = useAuth();
-  const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
 
   const items = menuLinks.dropdown.menu.map((item) => ({
     key: item.key,
     label: <Link to={item.to}>{item.label}</Link>,
   }));
 
-  // Sử dụng useEffect để set form values từ user data
   useEffect(() => {
-    if (user) {
+    if (user && isModalVisible) {
       form.setFieldsValue({
         staffName: user.name,
-        staffId: user.id,
+        staffId: user.uid,
         staffDepartment: user.department,
       });
     }
-  }, [user, form]);
+  }, [user, form, isModalVisible]);
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async () => {
+    await authService.logout();
     navigate("/sign-in");
   };
 
@@ -145,7 +146,7 @@ export const Header = ({ className }) => {
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         form={form}
-        staffInfo={user} // Truyền user trực tiếp vào thay vì staffInfo
+        staffInfo={user}
       />
     </nav>
   );

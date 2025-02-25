@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthProvider";
 const SignUp = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [messageApi, contextHolder] = message.useMessage();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,7 +17,6 @@ const SignUp = () => {
       setIsLoading(true);
       const { confirmPassword, ...userData } = values;
       const user = await authService.register(userData);
-      setUser(user);
       messageApi.success("Registration successful!");
       navigate("/");
     } catch (error) {
