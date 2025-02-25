@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, DatePicker, Select, Modal, notification } from "antd";
 import { HEADER_TEXTS } from "@/constants/header";
 import { JOD_RANKS } from "@/constants/common";
+import { projectService } from "@/services/project";
+import { claimService } from "@/services/claim";
+import { calculateWorkingHours } from "@/utils";
 
 const { RangePicker } = DatePicker;
 
@@ -12,32 +15,106 @@ export const ClaimModal = ({
   staffInfo,
   isEditing = false,
   onFinish,
+  onSuccess,
 }) => {
   const [api, contextHolder] = notification.useNotification();
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleCreateClaim = () => {
-    form.validateFields().then((values) => {
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        const projectsData = await projectService.getProjects();
+        setProjects(projectsData);
+      } catch (error) {
+        api.error({
+          message: "Error",
+          description: "Failed to fetch projects",
+          duration: 3,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleCreateClaim = async () => {
+    try {
+      const values = await form.validateFields();
+      const [startDate, endDate] = values.projectDuration;
+
       if (isEditing) {
         onFinish?.(values);
       } else {
-        console.log("Form values:", values);
+        setLoading(true);
+        const totalWorking = calculateWorkingHours(startDate, endDate);
+
+        const newClaim = await claimService.createClaim({
+          ...values,
+          staffId: staffInfo.uid,
+          staffName: staffInfo.name,
+          staffDepartment: staffInfo.department,
+          totalWorking,
+        });
+
         setIsModalVisible(false);
+        form.resetFields();
+        api.success({
+          message: "Success",
+          description: "Claim created successfully!",
+          duration: 3,
+        });
+        onSuccess?.(newClaim);
       }
-      api.success({
-        message: "Success",
-        description: `${isEditing ? "Edit" : "Create"} claim successfully!`,
-        duration: 3,
-      });
-    });
+    } catch (error) {
+      if (!error.errorFields) {
+        api.error({
+          message: "Error",
+          description: "Failed to create claim",
+          duration: 3,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveDraft = () => {
-    setIsModalVisible(false);
-    api.info({
-      message: "Info",
-      description: "Draft saved successfully!",
-      duration: 3,
-    });
+  const handleSaveDraft = async () => {
+    try {
+      const values = await form.getFieldsValue();
+      const [startDate, endDate] = values.projectDuration || [];
+      setLoading(true);
+
+      const totalWorking =
+        startDate && endDate ? calculateWorkingHours(startDate, endDate) : 0;
+
+      const newDraft = await claimService.saveDraft({
+        ...values,
+        staffId: staffInfo.uid,
+        staffName: staffInfo.name,
+        staffDepartment: staffInfo.department,
+        totalWorking,
+      });
+
+      setIsModalVisible(false);
+      form.resetFields();
+      api.success({
+        message: "Success",
+        description: "Draft saved successfully!",
+        duration: 3,
+      });
+      onSuccess?.(newDraft);
+    } catch (error) {
+      api.error({
+        message: "Error",
+        description: "Failed to save draft",
+        duration: 3,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,19 +128,18 @@ export const ClaimModal = ({
           setIsModalVisible(false);
           form.resetFields();
         }}
+        confirmLoading={loading}
         okText={isEditing ? "Save Changes" : HEADER_TEXTS.createClaimButton}
         cancelText={isEditing ? "Cancel" : HEADER_TEXTS.saveDraftButton}
         style={{ top: 40 }}
         cancelButtonProps={{
-          onClick: isEditing 
-            ? () => setIsModalVisible(false)
-            : handleSaveDraft,
+          onClick: isEditing ? () => setIsModalVisible(false) : handleSaveDraft,
         }}
       >
         <p className="mb-4 text-gray-500">
           {HEADER_TEXTS.createClaimDescription}
         </p>
-        <Form form={form} layout="vertical">
+        <Form disabled={loading} form={form} layout="vertical">
           <div className="flex-wrap gap-4">
             <Form.Item
               label="Staff Name"
@@ -87,7 +163,7 @@ export const ClaimModal = ({
               ]}
             >
               <Input
-                value={staffInfo?.id || ""}
+                value={staffInfo?.uid || ""}
                 disabled
                 className="w-full md:w-1/2"
                 style={{ color: "inherit" }}
@@ -121,11 +197,11 @@ export const ClaimModal = ({
                 placeholder="Select a project"
                 className="w-full md:w-1/2"
               >
-                <Select.Option value="E-Commerce">E-Commerce</Select.Option>
-                <Select.Option value="Banking App">Banking App</Select.Option>
-                <Select.Option value="Healthcare System">
-                  Healthcare System
-                </Select.Option>
+                {projects.map((project) => (
+                  <Select.Option key={project.id} value={project.projectName}>
+                    {project.projectName}
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
             <Form.Item

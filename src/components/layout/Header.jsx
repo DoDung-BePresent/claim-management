@@ -12,7 +12,7 @@ import { authService } from "@/services/auth";
 export const Header = ({ className }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const menuLinks = HEADER_LINKS.find((item) => item.role === user.role);
@@ -23,14 +23,14 @@ export const Header = ({ className }) => {
   }));
 
   useEffect(() => {
-    if (user) {
+    if (user && isModalVisible) {
       form.setFieldsValue({
         staffName: user.name,
-        staffId: user.id,
+        staffId: user.uid,
         staffDepartment: user.department,
       });
     }
-  }, [user, form]);
+  }, [user, form, isModalVisible]);
 
   const handleLogout = async () => {
     await authService.logout();
@@ -146,7 +146,7 @@ export const Header = ({ className }) => {
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         form={form}
-        staffInfo={user} // Truyền user trực tiếp vào thay vì staffInfo
+        staffInfo={user}
       />
     </nav>
   );

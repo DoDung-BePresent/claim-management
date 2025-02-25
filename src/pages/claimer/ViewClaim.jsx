@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Dropdown, Modal, Form } from "antd";
+import { Table, Tag, Button, Dropdown, Modal, Form, message } from "antd";
 import { DUMMY_CLAIMS } from "@/constants/claimer";
 import { STATUS_COLORS } from "@/constants/common";
 import { Delete, Edit, Eye, Send, MoreHorizontal } from "lucide-react";
@@ -7,11 +7,12 @@ import { useSearchParams } from "react-router-dom";
 import { ClaimModal } from "@/components/claimer/ClaimModal";
 import { useAuth } from "@/contexts/AuthProvider";
 import dayjs from "dayjs";
+import { claimService } from "@/services/claim";
 
 const ViewClaim = () => {
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
-  const [dataSource, setDataSource] = useState(DUMMY_CLAIMS);
+  const [dataSource, setDataSource] = useState([]);
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -21,6 +22,8 @@ const ViewClaim = () => {
   const [form] = Form.useForm();
   const { user } = useAuth();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -28,16 +31,29 @@ const ViewClaim = () => {
   });
 
   useEffect(() => {
-    if (statusParam) {
-      setDataSource(
-        DUMMY_CLAIMS.filter(
-          (item) => item.status.toLowerCase() === statusParam.toLowerCase(),
-        ),
-      );
-    } else {
-      setDataSource(DUMMY_CLAIMS);
-    }
-  }, [statusParam]);
+    const fetchClaims = async () => {
+      try {
+        setLoading(true);
+        const claims = await claimService.getUserClaims(user.uid);
+
+        if (statusParam) {
+          setDataSource(
+            claims.filter(
+              (item) => item.status.toLowerCase() === statusParam.toLowerCase(),
+            ),
+          );
+        } else {
+          setDataSource(claims);
+        }
+      } catch (error) {
+        messageApi.error("Failed to fetch claims");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClaims();
+  }, [statusParam, user.uid, messageApi]);
 
   const handleView = (record) => {
     setSelectedClaim(record);
@@ -83,6 +99,23 @@ const ViewClaim = () => {
     });
     setSelectedClaim(record);
     setIsEditModalVisible(true);
+  };
+
+  const handleClaimSuccess = (newClaim) => {
+    if (
+      statusParam &&
+      statusParam.toLowerCase() !== newClaim.status.toLowerCase()
+    ) {
+      return;
+    }
+
+    setDataSource((prev) => [
+      {
+        ...newClaim,
+        key: newClaim.id,
+      },
+      ...prev,
+    ]);
   };
 
   const getActionItems = (record) => {
@@ -199,7 +232,9 @@ const ViewClaim = () => {
 
   return (
     <div className="flex flex-col gap-4 p-6">
+      {contextHolder}
       <Table
+        loading={loading}
         size="small"
         columns={columns}
         dataSource={dataSource}
@@ -267,6 +302,7 @@ const ViewClaim = () => {
         form={form}
         staffInfo={user}
         isEditing={true}
+        onSuccess={handleClaimSuccess}
         onFinish={(values) => {
           const { projectDuration, ...rest } = values;
           const [startDate, endDate] = projectDuration;
