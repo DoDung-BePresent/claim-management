@@ -5,11 +5,40 @@ import {
   getDocs,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 export const claimService = {
+  async getClaimsForFinance() {
+    try {
+      const q = query(
+        collection(db, "claims"),
+        where("status", "in", ["Paid", "Approved"]),
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    } catch (error) {
+      console.error("Error fetching claims:", error);
+      throw new Error("Error fetching claims!");
+    }
+  },
+  async updateClaimStatus(claimId, newStatus) {
+    try {
+      const claimRef = doc(db, "claims", claimId);
+      await updateDoc(claimRef, { status: newStatus });
+      console.log(`Claim ${claimId} updated to status: ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating claim status:", error);
+      throw new Error("Failed to update claim status");
+    }
+  },
+
   async getUserClaims(userId) {
     try {
       const q = query(collection(db, "claims"), where("staffId", "==", userId));
