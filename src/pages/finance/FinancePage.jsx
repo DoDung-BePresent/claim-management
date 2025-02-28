@@ -4,6 +4,7 @@ import { Eye, Printer, DollarSign, MoreHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { DUMMY_CLAIMS } from "@/constants/finance";
 import { STATUS_COLORS } from "@/constants/common";
+import { claimService } from "../../services/claim";
 
 const FinancePage = () => {
   const [searchParams] = useSearchParams();
@@ -20,23 +21,39 @@ const FinancePage = () => {
   });
 
   useEffect(() => {
-    if (statusParam) {
-      setDataSource(
-        DUMMY_CLAIMS.filter(
-          (item) => item.status.toLowerCase() === statusParam.toLowerCase(),
-        ),
-      );
-    } else {
-      setDataSource(DUMMY_CLAIMS);
+    async function fetchClaims() {
+      try {
+        const claims = await claimService.getClaimsForFinance();
+        setDataSource(claims);
+        console.log(claims);
+      } catch (error) {
+        console.error(error);
+      }
     }
+
+    fetchClaims();
   }, [statusParam]);
+
+  // useEffect(() => {
+  //   if (statusParam) {
+  //     setDataSource(
+  //       DUMMY_CLAIMS.filter(
+  //         (item) => item.status.toLowerCase() === statusParam.toLowerCase(),
+  //       ),
+  //     );
+  //   } else {
+  //     setDataSource(DUMMY_CLAIMS);
+  //   }
+  // }, [statusParam]);
 
   const handlePaid = (record) => {
     setSelectedClaim(record);
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
+    await claimService.updateClaimStatus(selectedClaim.id, "Paid");
+
     if (selectedClaim) {
       setDataSource((prev) =>
         prev.map((item) =>
@@ -54,7 +71,7 @@ const FinancePage = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -107,7 +124,7 @@ const FinancePage = () => {
               <p>
                 <span class="print-label">Period:</span>
                 <span class="print-value">
-                  ${new Date(printingClaim.startDate).toLocaleDateString()} to 
+                  ${new Date(printingClaim.startDate).toLocaleDateString()} to
                   ${new Date(printingClaim.endDate).toLocaleDateString()}
                 </span>
               </p>
@@ -239,7 +256,7 @@ const FinancePage = () => {
   ];
 
   const PrintComponent = () => (
-    <div className="p-8">
+    <div id="print-content" className="p-8">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold">Claim Receipt</h1>
         <p className="text-muted-foreground">
@@ -268,7 +285,9 @@ const FinancePage = () => {
                   </tr>
                   <tr>
                     <td className="text-muted-foreground py-1">Total Hours:</td>
-                    <td className="font-medium">{printingClaim.totalWorking} hours</td>
+                    <td className="font-medium">
+                      {printingClaim.totalWorking} hours
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -351,9 +370,9 @@ const FinancePage = () => {
           <Button key="cancel" onClick={() => setIsPrintModalOpen(false)}>
             Cancel
           </Button>,
-          <Button 
-            key="print" 
-            type="primary" 
+          <Button
+            key="print"
+            type="primary"
             onClick={handlePrint}
             disabled={!printingClaim}
           >
@@ -364,7 +383,6 @@ const FinancePage = () => {
       >
         <PrintComponent />
       </Modal>
-
     </div>
   );
 };
