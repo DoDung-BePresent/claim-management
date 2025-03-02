@@ -245,6 +245,7 @@ const ViewClaim = () => {
           size: "default",
           pageSize: 10,
         }}
+        scroll={{ x: "max-content" }} // Ensure table is scrollable on smaller screens
         onChange={(pagination) => setPagination(pagination)}
       />
 
@@ -261,7 +262,7 @@ const ViewClaim = () => {
       >
         {selectedClaim && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-muted-foreground">Claim ID</p>
                 <p className="font-medium">{selectedClaim.id}</p>

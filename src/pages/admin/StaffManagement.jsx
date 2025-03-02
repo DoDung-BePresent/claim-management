@@ -1,39 +1,35 @@
-import React, { useState } from "react";
-import { Table, Button, Dropdown, Form, Modal } from "antd";
+import React, { useState, useEffect } from "react";
+import { Table, Button, Dropdown, Form } from "antd";
 import { Edit, Trash, MoreHorizontal, Plus } from "lucide-react";
-import { DUMMY_STAFFS } from "@/constants/admin";
-import { DEPARTMENTS, JOD_RANKS } from "@/constants/common";
 import StaffModal from "@/components/admin/StaffModal";
+import { fetchStaff, deleteStaff } from "@/services/staff";
 
 const StaffManagement = () => {
   const [form] = Form.useForm();
-  const [dataSource, setDataSource] = useState(DUMMY_STAFFS);
+  const [dataSource, setDataSource] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
-  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
-  const [staffToDelete, setStaffToDelete] = useState(null);
 
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-  });
+  useEffect(() => {
+    loadStaff();
+  }, []);
 
-  const handleDelete = (record) => {
-    setStaffToDelete(record);
-    setDeleteConfirmVisible(true);
+  const loadStaff = async () => {
+    try {
+      const staff = await fetchStaff();
+      setDataSource(staff);
+    } catch (error) {
+      console.error('Error loading staff:', error);
+    }
   };
 
-  const confirmDelete = () => {
-    setDataSource((prev) =>
-      prev.filter((item) => item.id !== staffToDelete.id),
-    );
-    setDeleteConfirmVisible(false);
-    setStaffToDelete(null);
-  };
-
-  const cancelDelete = () => {
-    setDeleteConfirmVisible(false);
-    setStaffToDelete(null);
+  const handleDelete = async (record) => {
+    try {
+      await deleteStaff(record.id);
+      loadStaff();
+    } catch (error) {
+      console.error('Error deleting staff:', error);
+    }
   };
 
   const showModal = (record = null) => {
@@ -46,25 +42,19 @@ const StaffManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleSubmit = (values) => {
-    if (editingStaff) {
-      setDataSource((prev) =>
-        prev.map((item) =>
-          item.id === editingStaff.id ? { ...item, ...values } : item,
-        ),
-      );
-    } else {
-      setDataSource((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          key: prev.length + 1,
-          ...values,
-        },
-      ]);
+  const handleSubmit = async (values) => {
+    try {
+      if (editingStaff) {
+        await updateStaff(editingStaff.id, values);
+      } else {
+        await createStaff(values);
+      }
+      loadStaff();
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      console.error('Error saving staff:', error);
     }
-    setIsModalVisible(false);
-    form.resetFields();
   };
 
   const handleCancel = () => {
@@ -95,9 +85,7 @@ const StaffManagement = () => {
     {
       title: "Id",
       dataIndex: "id",
-      render: (_text, _record, index) => {
-        return (pagination.current - 1) * pagination.pageSize + index + 1;
-      },
+      sorter: (a, b) => a.id - b.id,
     },
     {
       title: "Staff Name",
@@ -107,20 +95,18 @@ const StaffManagement = () => {
     {
       title: "Department",
       dataIndex: "department",
-      filters: DEPARTMENTS,
-      onFilter: (value, record) => record.department === value,
+      sorter: (a, b) => a.department.localeCompare(b.department),
     },
     {
       title: "Job Rank",
       dataIndex: "jobRank",
-      filters: JOD_RANKS,
-      onFilter: (value, record) => record.jobRank === value,
+      sorter: (a, b) => a.jobRank.localeCompare(b.jobRank),
     },
     {
       title: "Salary",
       dataIndex: "salary",
       sorter: (a, b) => a.salary - b.salary,
-      render: (salary) => `$${salary.toLocaleString()}`, // Nên dùng IntCurrency
+      render: (salary) => `$${salary.toLocaleString()}`,
     },
     {
       title: "Actions",
@@ -142,6 +128,10 @@ const StaffManagement = () => {
     },
   ];
 
+  // Extract unique options from the dataSource
+  const staffOptions = [...new Set(dataSource.map((item) => item.staffName))];
+  const departmentOptions = ["IT", "HR", "Finance"];
+
   return (
     <div className="flex flex-col gap-4 p-6">
       <div className="flex justify-end">
@@ -158,11 +148,12 @@ const StaffManagement = () => {
         size="small"
         columns={columns}
         dataSource={dataSource}
+        rowKey="id" 
         pagination={{
           pageSize: 10,
           size: "default",
         }}
-        onChange={(pagination) => setPagination(pagination)}
+        scroll={{ x: "max-content" }}
       />
 
       <StaffModal
@@ -171,23 +162,10 @@ const StaffManagement = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         form={form}
+        loadStaff={loadStaff} 
+        staffOptions={staffOptions}
+        departmentOptions={departmentOptions}
       />
-
-      <Modal
-        title="Confirm Delete"
-        open={deleteConfirmVisible}
-        onOk={confirmDelete}
-        onCancel={cancelDelete}
-        okText="Delete"
-        cancelText="Cancel"
-        okButtonProps={{ danger: true }}
-      >
-        <p>
-          Are you sure you want to delete staff member "
-          {staffToDelete?.staffName}"?
-        </p>
-        <p className="text-muted-foreground">This action cannot be undone.</p>
-      </Modal>
     </div>
   );
 };

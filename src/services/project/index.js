@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 export const projectService = {
@@ -11,6 +11,37 @@ export const projectService = {
       }));
     } catch (error) {
       console.error("Error getting projects:", error);
+      throw error;
+    }
+  },
+
+  async createProject(projectData) {
+    try {
+      const docRef = await addDoc(collection(db, "projects"), projectData);
+      return { id: docRef.id, ...projectData };
+    } catch (error) {
+      console.error("Error creating project:", error);
+      throw error;
+    }
+  },
+
+  async updateProject(id, projectData) {
+    try {
+      const docRef = doc(db, "projects", id);
+      await updateDoc(docRef, projectData);
+      return { id, ...projectData };
+    } catch (error) {
+      console.error("Error updating project:", error);
+      throw error;
+    }
+  },
+
+  async deleteProject(id) {
+    try {
+      const docRef = doc(db, "projects", id);
+      await deleteDoc(docRef);
+    } catch (error) {
+      console.error("Error deleting project:", error);
       throw error;
     }
   }
