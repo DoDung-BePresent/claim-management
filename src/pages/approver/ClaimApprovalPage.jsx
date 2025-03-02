@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Tag, Button, Dropdown, Modal } from "antd"; // Add Modal
+import { Table, Tag, Button, Dropdown, Modal } from "antd";
 import { DUMMY_CLAIMS } from "@/constants/approver";
 import { STATUS_COLORS } from "@/constants/common";
 import {
@@ -192,6 +192,7 @@ const ClaimApprovalPage = () => {
           size: "default",
           pageSize: 10,
         }}
+        scroll={{ x: "max-content" }} 
         onChange={(pagination) => setPagination(pagination)}
       />
 
@@ -208,7 +209,7 @@ const ClaimApprovalPage = () => {
       >
         {selectedClaim && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-muted-foreground">Claim ID</p>
                 <p className="font-medium">{selectedClaim.id}</p>

@@ -138,6 +138,7 @@ const AdminClaimer = () => {
           size: "default",
           pageSize: 10,
         }}
+        scroll={{ x: "max-content" }} 
       />
     </div>
   );
