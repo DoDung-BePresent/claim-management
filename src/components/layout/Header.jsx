@@ -108,7 +108,17 @@ export const Header = ({ className }) => {
                 },
                 {
                   key: "2",
-                  label: HEADER_TEXTS.profile,
+                  label: <Link to={
+                    user.role === "administrator" 
+                      ? "/manage/profile"
+                      : user.role === "claimer"
+                      ? "/claim/profile"
+                      : user.role === "finance"
+                      ? "/finance/profile"
+                      : user.role === "approver"
+                      ? "/approver/profile"
+                      : "/"
+                  }>{HEADER_TEXTS.profile}</Link>,
                   icon: <User className="h-5 w-5" />,
                   extra: "⌘P",
                 },
